@@ -6,17 +6,18 @@ Public Class Form1
             Dim strServerResponse As String = Nothing
 
             Dim httpHelper As New Tom.httpHelper()
-            httpHelper.setUserAgent("Microsoft .NET") ' Set our User Agent String.
+            httpHelper.setUserAgent = "Microsoft .NET" ' Set our User Agent String.
             httpHelper.addGETData("test3", "value3")
             httpHelper.addHTTPCookie("mycookie", "my cookie contents", "www.toms-world.org", "/")
             httpHelper.addHTTPHeader("myheader", "my header contents")
+            httpHelper.setHTTPCredentials("test", "test")
 
-            httpHelper.setCustomErrorHandler(Function(ex As Exception, classInstance As Tom.httpHelper)
-                                                 MsgBox(ex.Message)
-                                                 Return False
-                                             End Function)
+            httpHelper.setCustomErrorHandler = Function(ex As Exception, classInstance As Tom.httpHelper)
+                                                   MsgBox(ex.Message)
+                                                   Return False
+                                               End Function
 
-            If httpHelper.getWebData("https://www.dslreports.com/dfgfgf", strServerResponse) = True Then
+            If httpHelper.getWebData("https://www.toms-world.org/php/phpinfo.php", strServerResponse) = True Then
                 WebBrowser1.DocumentText = strServerResponse
                 TextBox1.Text = httpHelper.getHTTPResponseHeaders(True).ToString
 
@@ -39,7 +40,7 @@ Public Class Form1
             Dim strServerResponse As String = Nothing
 
             Dim httpHelper As New Tom.httpHelper()
-            httpHelper.setUserAgent("Microsoft .NET") ' Set our User Agent String.
+            httpHelper.setUserAgent = "Microsoft .NET" ' Set our User Agent String.
             httpHelper.addHTTPCookie("mycookie", "my cookie contents", "www.toms-world.org", "/")
             httpHelper.addHTTPHeader("myheader", "my header contents")
             httpHelper.addPOSTData("test1", "value1")
@@ -88,15 +89,15 @@ Public Class Form1
     Private Sub btnDownloadFile_Click(sender As Object, e As EventArgs) Handles btnDownloadFile.Click
         ' First we create our httpHelper Class instance.
         Dim httpHelper As New Tom.httpHelper()
-        httpHelper.setUserAgent("Microsoft .NET") ' Set our User Agent String.
+        httpHelper.setUserAgent = "Microsoft .NET" ' Set our User Agent String.
 
         ' Now we set up our download status updating Lambda function that's passed to the Class instance to execute within the memory space of the Class.
-        httpHelper.setDownloadStatusUpdateRoutine(Function(ByVal downloadStatusDetails As Tom.downloadStatusDetails)
-                                                      Label1.Text = String.Format("Downloaded {0} of {1}", httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.localFileSize), httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.remoteFileSize))
-                                                      Label2.Text = downloadStatusDetails.percentageDownloaded.ToString & "%"
-                                                      ProgressBar1.Value = downloadStatusDetails.percentageDownloaded
-                                                      Return False
-                                                  End Function)
+        httpHelper.setDownloadStatusUpdateRoutine = Function(ByVal downloadStatusDetails As Tom.downloadStatusDetails)
+                                                        Label1.Text = String.Format("Downloaded {0} of {1}", httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.localFileSize), httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.remoteFileSize))
+                                                        Label2.Text = downloadStatusDetails.percentageDownloaded.ToString & "%"
+                                                        ProgressBar1.Value = downloadStatusDetails.percentageDownloaded
+                                                        Return False
+                                                    End Function
 
         ' Now we need to create our download thread.
         downloadThread = New Threading.Thread(Sub()
@@ -147,8 +148,8 @@ Public Class Form1
                 Dim strServerResponse As String = Nothing
 
                 Dim httpHelper As New Tom.httpHelper()
-                httpHelper.setHTTPTimeout(10)
-                httpHelper.setUserAgent("Microsoft .NET") ' Set our User Agent String.
+                httpHelper.setHTTPTimeout = 10
+                httpHelper.setUserAgent = "Microsoft .NET" ' Set our User Agent String.
                 httpHelper.addHTTPCookie("mycookie", "my cookie contents", "www.toms-world.org", "/")
                 httpHelper.addHTTPHeader("myheader", "my header contents")
                 httpHelper.addPOSTData("test1", "value1")
@@ -180,7 +181,7 @@ Public Class Form1
             Dim strServerResponse As String = Nothing
 
             Dim httpHelper As New Tom.httpHelper()
-            httpHelper.setUserAgent("Microsoft .NET") ' Set our User Agent String.
+            httpHelper.setUserAgent = "Microsoft .NET" ' Set our User Agent String.
             httpHelper.addGETData("test3", "value3")
             httpHelper.addHTTPCookie("mycookie", "my cookie contents", "www.toms-world.org", "/")
             httpHelper.addHTTPHeader("myheader", "my header contents")
