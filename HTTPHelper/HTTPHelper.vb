@@ -195,7 +195,7 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class httpHelper
-    Private Const classVersion As String = "1.210"
+    Private Const classVersion As String = "1.215"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -537,16 +537,13 @@ Public Class httpHelper
     ''' <exception cref="dataAlreadyExistsException">If this function throws a dataAlreadyExistsException, it means that the cookie already exists in this Class instance.</exception>
     Public Sub addHTTPCookie(strCookieName As String, strCookieValue As String, strDomainDomain As String, strCookiePath As String, Optional urlEncodeHeaderContent As Boolean = False)
         If doesCookieExist(strCookieName) = False Then
-            Dim cookieDetails As New cookieDetails
+            Dim cookieDetails As New cookieDetails() With {.cookieDomain = strDomainDomain, .cookiePath = strCookiePath}
 
             If urlEncodeHeaderContent = True Then
                 cookieDetails.cookieData = Web.HttpUtility.UrlEncode(strCookieValue)
             Else
                 cookieDetails.cookieData = strCookieValue
             End If
-
-            cookieDetails.cookieDomain = strDomainDomain
-            cookieDetails.cookiePath = strCookiePath
 
             httpCookies.Add(strCookieName.ToLower, cookieDetails)
         Else
@@ -563,16 +560,13 @@ Public Class httpHelper
     ''' <exception cref="dataAlreadyExistsException">If this function throws a dataAlreadyExistsException, it means that the cookie already exists in this Class instance.</exception>
     Public Sub addHTTPCookie(strCookieName As String, strCookieValue As String, strCookieDomain As String, Optional urlEncodeHeaderContent As Boolean = False)
         If doesCookieExist(strCookieName) = False Then
-            Dim cookieDetails As New cookieDetails
+            Dim cookieDetails As New cookieDetails() With {.cookieDomain = strCookieDomain, .cookiePath = "/"}
 
             If urlEncodeHeaderContent = True Then
                 cookieDetails.cookieData = Web.HttpUtility.UrlEncode(strCookieValue)
             Else
                 cookieDetails.cookieData = strCookieValue
             End If
-
-            cookieDetails.cookieDomain = strCookieDomain
-            cookieDetails.cookiePath = "/"
 
             httpCookies.Add(strCookieName.ToLower, cookieDetails)
         Else
