@@ -110,7 +110,7 @@ Public Class Form1
                                                       btnDownloadFile.Enabled = False
 
                                                       ' We use the downloadFile() function which first calls for the URL and then the path to a place on the local file system to save it. This function is why we need multithreading, this will take a long time to do.
-                                                      If httpHelper.getDownloadDataStream(urlToFileToBeDownloaded, memStream, True) = True Then
+                                                      If httpHelper.downloadFile(urlToFileToBeDownloaded, memStream, True) = True Then
                                                           Dim fileStream As New IO.FileStream(pathToDownloadFileTo, IO.FileMode.Create)
                                                           memStream.CopyTo(fileStream)
                                                           memStream.Close()
