@@ -472,7 +472,7 @@ Public Class httpHelper
     ''' <param name="boolHumanReadable">Optional setting, normally set to True. Tells the function if it should transform the Integer representing the file size into a human readable format.</param>
     ''' <returns>Either a String or a Long containing the remote file size.</returns>
     Public Function getHTTPDownloadRemoteFileSize(Optional boolHumanReadable As Boolean = True) As Object
-        If boolHumanReadable = True Then
+        If boolHumanReadable Then
             Return fileSizeToHumanReadableFormat(remoteFileSize)
         Else
             Return remoteFileSize
@@ -485,7 +485,7 @@ Public Class httpHelper
     ''' <param name="boolThrowException">An optional parameter that tells the function if it should throw an exception if an SSL certificate isn't found in the memory space of this Class instance.</param>
     Public Function getCertificateDetails(Optional boolThrowException As Boolean = True) As X509Certificates.X509Certificate2
         If sslCertificate Is Nothing Then
-            If boolThrowException = True Then
+            If boolThrowException Then
                 lastException = New noSSLCertificateFoundException("No valid SSL certificate found for the last HTTP request. Perhaps the last HTTP request wasn't an HTTPS request.")
                 Throw lastException
             End If
@@ -499,7 +499,7 @@ Public Class httpHelper
     ''' <param name="boolHumanReadable">Optional setting, normally set to True. Tells the function if it should transform the Integer representing the file size into a human readable format.</param>
     ''' <returns>Either a String or a Long containing the current local file's size.</returns>
     Public Function getHTTPDownloadLocalFileSize(Optional boolHumanReadable As Boolean = True) As Object
-        If boolHumanReadable = True Then
+        If boolHumanReadable Then
             Return fileSizeToHumanReadableFormat(currentFileSize)
         Else
             Return currentFileSize
@@ -569,7 +569,7 @@ Public Class httpHelper
             Throw lastException
         End If
 
-        If postData.ContainsKey(strName) = True And throwExceptionIfDataAlreadyExists = True Then
+        If postData.ContainsKey(strName) And throwExceptionIfDataAlreadyExists Then
             lastException = New dataAlreadyExistsException(String.Format("The POST data key named {0}{1}{0} already exists in the POST data.", Chr(34), strName))
             Throw lastException
         Else
@@ -588,7 +588,7 @@ Public Class httpHelper
             Throw lastException
         End If
 
-        If getData.ContainsKey(strName) = True And throwExceptionIfDataAlreadyExists = True Then
+        If getData.ContainsKey(strName) And throwExceptionIfDataAlreadyExists Then
             lastException = New dataAlreadyExistsException(String.Format("The GET data key named {0}{1}{0} already exists in the GET data.", Chr(34), strName))
             Throw lastException
         Else
@@ -605,7 +605,7 @@ Public Class httpHelper
     ''' <exception cref="dataAlreadyExistsException">If this function throws an dataAlreadyExistsException, it means that this Class instance already has an Additional HTTP Header of that name in the Class instance.</exception>
     Public Sub addHTTPHeader(strHeaderName As String, strHeaderContents As String, Optional urlEncodeHeaderContent As Boolean = False)
         If doesAdditionalHeaderExist(strHeaderName) = False Then
-            If urlEncodeHeaderContent = True Then
+            If urlEncodeHeaderContent Then
                 additionalHTTPHeaders.Add(strHeaderName.ToLower, Web.HttpUtility.UrlEncode(strHeaderContents))
             Else
                 additionalHTTPHeaders.Add(strHeaderName.ToLower, strHeaderContents)
@@ -627,7 +627,7 @@ Public Class httpHelper
         If doesCookieExist(strCookieName) = False Then
             Dim cookieDetails As New cookieDetails() With {.cookieDomain = strDomainDomain, .cookiePath = strCookiePath}
 
-            If urlEncodeHeaderContent = True Then
+            If urlEncodeHeaderContent Then
                 cookieDetails.cookieData = Web.HttpUtility.UrlEncode(strCookieValue)
             Else
                 cookieDetails.cookieData = strCookieValue
@@ -650,7 +650,7 @@ Public Class httpHelper
         If doesCookieExist(strCookieName) = False Then
             Dim cookieDetails As New cookieDetails() With {.cookieDomain = strCookieDomain, .cookiePath = "/"}
 
-            If urlEncodeHeaderContent = True Then
+            If urlEncodeHeaderContent Then
                 cookieDetails.cookieData = Web.HttpUtility.UrlEncode(strCookieValue)
             Else
                 cookieDetails.cookieData = strCookieValue
@@ -709,7 +709,7 @@ Public Class httpHelper
             lastException = New FileNotFoundException("Local file not found.", strLocalFilePath)
             Throw lastException
         ElseIf postData.ContainsKey(strFormName) Then
-            If throwExceptionIfItemAlreadyExists = True Then
+            If throwExceptionIfItemAlreadyExists Then
                 lastException = New dataAlreadyExistsException(String.Format("The POST data key named {0}{1}{0} already exists in the POST data.", Chr(34), strFormName))
                 Throw lastException
             Else
@@ -752,7 +752,7 @@ Public Class httpHelper
     ''' <exception cref="noHTTPServerResponseHeadersFoundException">If this function throws a noHTTPServerResponseHeadersFoundException, there are no HTTP Response Headers in this Class instance.</exception>
     Public Function getHTTPResponseHeaders(Optional throwExceptionIfNoHeaders As Boolean = False) As Net.WebHeaderCollection
         If httpResponseHeaders Is Nothing Then
-            If throwExceptionIfNoHeaders = True Then
+            If throwExceptionIfNoHeaders Then
                 lastException = New noHTTPServerResponseHeadersFoundException("No HTTP Server Response Headers found.")
                 Throw lastException
             Else
@@ -802,7 +802,7 @@ Public Class httpHelper
                 addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPassword)))
             End If
 
-            If boolUseHTTPCompression = True Then
+            If boolUseHTTPCompression Then
                 ' We tell the web server that we can accept a GZIP and Deflate compressed data stream.
                 httpWebRequest.Accept = "gzip, deflate"
                 httpWebRequest.Headers.Add(Net.HttpRequestHeader.AcceptEncoding, "gzip, deflate")
@@ -816,7 +816,7 @@ Public Class httpHelper
 
             Dim webResponse As Net.WebResponse = httpWebRequest.GetResponse() ' We now get the web response.
 
-            If fileDownloadURL.StartsWith("https://", StringComparison.OrdinalIgnoreCase) = True Then
+            If fileDownloadURL.StartsWith("https://", StringComparison.OrdinalIgnoreCase) Then
                 sslCertificate = New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate)
             Else
                 sslCertificate = Nothing
@@ -920,8 +920,8 @@ Public Class httpHelper
             End If
             lastAccessedURL = fileDownloadURL
 
-            If File.Exists(localFileName) = True Then
-                If throwExceptionIfLocalFileExists = True Then
+            If File.Exists(localFileName) Then
+                If throwExceptionIfLocalFileExists Then
                     lastException = New localFileAlreadyExistsException(String.Format("The local file found at {0}{1}{0} already exists.", Chr(34), localFileName))
                     Throw lastException
                 Else
@@ -941,7 +941,7 @@ Public Class httpHelper
                 addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPassword)))
             End If
 
-            If boolUseHTTPCompression = True Then
+            If boolUseHTTPCompression Then
                 ' We tell the web server that we can accept a GZIP and Deflate compressed data stream.
                 httpWebRequest.Accept = "gzip, deflate"
                 httpWebRequest.Headers.Add(Net.HttpRequestHeader.AcceptEncoding, "gzip, deflate")
@@ -955,7 +955,7 @@ Public Class httpHelper
 
             Dim webResponse As Net.WebResponse = httpWebRequest.GetResponse() ' We now get the web response.
 
-            If fileDownloadURL.StartsWith("https://", StringComparison.OrdinalIgnoreCase) = True Then
+            If fileDownloadURL.StartsWith("https://", StringComparison.OrdinalIgnoreCase) Then
                 sslCertificate = New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate)
             Else
                 sslCertificate = Nothing
@@ -1066,7 +1066,7 @@ Public Class httpHelper
                 addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPassword)))
             End If
 
-            If boolUseHTTPCompression = True Then httpWebRequest.Accept = "gzip, deflate"
+            If boolUseHTTPCompression Then httpWebRequest.Accept = "gzip, deflate"
 
             configureProxy(httpWebRequest)
 
@@ -1091,7 +1091,7 @@ Public Class httpHelper
 
             Dim httpWebResponse As Net.WebResponse = httpWebRequest.GetResponse()
 
-            If url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) = True Then
+            If url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) Then
                 sslCertificate = New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate)
             Else
                 sslCertificate = Nothing
@@ -1186,7 +1186,7 @@ Public Class httpHelper
                 addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPassword)))
             End If
 
-            If boolUseHTTPCompression = True Then httpWebRequest.Accept = "gzip, deflate"
+            If boolUseHTTPCompression Then httpWebRequest.Accept = "gzip, deflate"
 
             configureProxy(httpWebRequest)
 
@@ -1246,7 +1246,7 @@ Public Class httpHelper
 
             Dim httpWebResponse As Net.WebResponse = httpWebRequest.GetResponse()
 
-            If url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) = True Then
+            If url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) Then
                 sslCertificate = New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate)
             Else
                 sslCertificate = Nothing
@@ -1318,8 +1318,8 @@ Public Class httpHelper
     End Sub
 
     Private Sub configureProxy(ByRef httpWebRequest As Net.HttpWebRequest)
-        If boolUseProxy = True Then
-            If boolUseSystemProxy = True Then
+        If boolUseProxy Then
+            If boolUseSystemProxy Then
                 httpWebRequest.Proxy = Net.WebRequest.DefaultWebProxy
             Else
                 If customProxy Is Nothing Then
@@ -1398,31 +1398,31 @@ Public Class httpHelper
         If size <= (2 ^ 10) Then
             result = size & " Bytes"
         ElseIf size > (2 ^ 10) And size <= (2 ^ 20) Then
-            If roundToNearestWholeNumber = True Then
+            If roundToNearestWholeNumber Then
                 result = Math.Round(size / (2 ^ 10), 0) & " KBs"
             Else
                 result = Math.Round(size / (2 ^ 10), 2) & " KBs"
             End If
         ElseIf size > (2 ^ 20) And size <= (2 ^ 30) Then
-            If roundToNearestWholeNumber = True Then
+            If roundToNearestWholeNumber Then
                 result = Math.Round(size / (2 ^ 20), 0) & " MBs"
             Else
                 result = Math.Round(size / (2 ^ 20), 2) & " MBs"
             End If
         ElseIf size > (2 ^ 30) And size <= (2 ^ 40) Then
-            If roundToNearestWholeNumber = True Then
+            If roundToNearestWholeNumber Then
                 result = Math.Round(size / (2 ^ 30), 0) & " GBs"
             Else
                 result = Math.Round(size / (2 ^ 30), 2) & " GBs"
             End If
         ElseIf size > (2 ^ 40) And size <= (2 ^ 50) Then
-            If roundToNearestWholeNumber = True Then
+            If roundToNearestWholeNumber Then
                 result = Math.Round(size / (2 ^ 40), 0) & " TBs"
             Else
                 result = Math.Round(size / (2 ^ 40), 2) & " TBs"
             End If
         ElseIf size > (2 ^ 50) And size <= (2 ^ 60) Then
-            If roundToNearestWholeNumber = True Then
+            If roundToNearestWholeNumber Then
                 result = Math.Round(size / (2 ^ 50), 0) & " PBs"
             Else
                 result = Math.Round(size / (2 ^ 50), 2) & " PBs"
