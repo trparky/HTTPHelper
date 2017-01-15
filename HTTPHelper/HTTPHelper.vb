@@ -105,6 +105,21 @@ Public Class dataAlreadyExistsException
     End Sub
 End Class
 
+Public Class proxyConfigurationError
+    Inherits Exception
+
+    Public Sub New()
+    End Sub
+
+    Public Sub New(message As String)
+        MyBase.New(message)
+    End Sub
+
+    Public Sub New(message As String, inner As Exception)
+        MyBase.New(message, inner)
+    End Sub
+End Class
+
 Public Class noHTTPServerResponseHeadersFoundException
     Inherits Exception
 
@@ -205,10 +220,12 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class httpHelper
-    Private Const classVersion As String = "1.235"
+    Private Const classVersion As String = "1.240"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
+    Private boolUseSystemProxy As Boolean = True
+    Private customProxy As Net.IWebProxy = Nothing
     Private httpResponseHeaders As Net.WebHeaderCollection = Nothing
     Private httpDownloadProgressPercentage As Short = 0
     Private remoteFileSize, currentFileSize, bytesPerSecond As ULong
@@ -262,6 +279,60 @@ Public Class httpHelper
         Else
             If throwExceptionIfAlreadySet Then Throw New credentialsAlreadySet("HTTP Authentication Credentials have already been set for this HTTPHelper Class Instance.")
         End If
+    End Sub
+
+    ''' <summary>Sets up a custom proxy configuration for this class instance.</summary>
+    ''' <param name="strUsername">The username you want to pass to the server.</param>
+    ''' <param name="strPassword">The password you want to pass to the server.</param>
+    ''' <param name="strServer">The proxy server's address, usually an IP address.</param>
+    ''' <param name="intPort">The proxy port.</param>
+    ''' <param name="boolByPassOnLocal">This tells the class instance if it should bypass the proxy for local servers. This is an optional value, by default it is True.</param>
+    ''' <exception cref="proxyConfigurationError">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
+    Public Sub setProxy(strServer As String, intPort As Integer, strUsername As String, strPassword As String, Optional boolByPassOnLocal As Boolean = True)
+        Try
+            customProxy = New Net.WebProxy(String.Format("{0}:{1}", strServer, intPort.ToString), boolByPassOnLocal) With {.Credentials = New Net.NetworkCredential(strUsername, strPassword)}
+        Catch ex As UriFormatException
+            Throw New proxyConfigurationError("There was an error setting up the proxy for this class instance.", ex)
+        End Try
+    End Sub
+
+    ''' <summary>Sets up a custom proxy configuration for this class instance.</summary>
+    ''' <param name="boolByPassOnLocal">This tells the class instance if it should bypass the proxy for local servers. This is an optional value, by default it is True.</param>
+    ''' <param name="strServer">The proxy server's address, usually an IP address.</param>
+    ''' <param name="intPort">The proxy port.</param>
+    ''' <exception cref="proxyConfigurationError">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
+    Public Sub setProxy(strServer As String, intPort As Integer, Optional boolByPassOnLocal As Boolean = True)
+        Try
+            customProxy = New Net.WebProxy(String.Format("{0}:{1}", strServer, intPort.ToString), boolByPassOnLocal)
+        Catch ex As UriFormatException
+            Throw New proxyConfigurationError("There was an error setting up the proxy for this class instance.", ex)
+        End Try
+    End Sub
+
+    ''' <summary>Sets up a custom proxy configuration for this class instance.</summary>
+    ''' <param name="boolByPassOnLocal">This tells the class instance if it should bypass the proxy for local servers. This is an optional value, by default it is True.</param>
+    ''' <param name="strServer">The proxy server's address, usually an IP address followed up by a ":" followed up by a port number.</param>
+    ''' <exception cref="proxyConfigurationError">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
+    Public Sub setProxy(strServer As String, Optional boolByPassOnLocal As Boolean = True)
+        Try
+            customProxy = New Net.WebProxy(strServer, boolByPassOnLocal)
+        Catch ex As UriFormatException
+            Throw New proxyConfigurationError("There was an error setting up the proxy for this class instance.", ex)
+        End Try
+    End Sub
+
+    ''' <summary>Sets up a custom proxy configuration for this class instance.</summary>
+    ''' <param name="boolByPassOnLocal">This tells the class instance if it should bypass the proxy for local servers. This is an optional value, by default it is True.</param>
+    ''' <param name="strServer">The proxy server's address, usually an IP address followed up by a ":" followed up by a port number.</param>
+    ''' <param name="strUsername">The username you want to pass to the server.</param>
+    ''' <param name="strPassword">The password you want to pass to the server.</param>
+    ''' <exception cref="proxyConfigurationError">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
+    Public Sub setProxy(strServer As String, strUsername As String, strPassword As String, Optional boolByPassOnLocal As Boolean = True)
+        Try
+            customProxy = New Net.WebProxy(strServer, boolByPassOnLocal) With {.Credentials = New Net.NetworkCredential(strUsername, strPassword)}
+        Catch ex As UriFormatException
+            Throw New proxyConfigurationError("There was an error setting up the proxy for this class instance.", ex)
+        End Try
     End Sub
 
     ''' <summary>Returns the last Exception that occurred within this Class instance.</summary>
@@ -327,6 +398,13 @@ Public Class httpHelper
         Get
             Return lastAccessedURL
         End Get
+    End Property
+
+    ''' <summary>Tells the Class instance if it should use the system proxy.</summary>
+    Public WriteOnly Property useSystemProxy As Boolean
+        Set
+            boolUseSystemProxy = Value
+        End Set
     End Property
 
     ''' <summary>This function allows you to get a peek inside the Class object instance. It returns many of the things that make up the Class instance like POST and GET data, cookies, additional HTTP headers, if proxy mode and HTTP compression mode is enabled, the user agent string, etc.</summary>
@@ -403,7 +481,7 @@ Public Class httpHelper
 
     ''' <summary>This returns the SSL certificate details for the last HTTP request made by this Class instance.</summary>
     ''' <returns>System.Security.Cryptography.X509Certificates.X509Certificate2</returns>
-    ''' <exception cref="noSSLCertificateFoundException">If this function throw a noSSLCertificateFoundException, it means that the Class doesn't have an SSL certificate in the memory space of the Class instance. Perhaps the last HTTP request wasn't an HTTPS request.</exception>
+    ''' <exception cref="noSSLCertificateFoundException">If this function throws a noSSLCertificateFoundException it means that the Class doesn't have an SSL certificate in the memory space of the Class instance. Perhaps the last HTTP request wasn't an HTTPS request.</exception>
     ''' <param name="boolThrowException">An optional parameter that tells the function if it should throw an exception if an SSL certificate isn't found in the memory space of this Class instance.</param>
     Public Function getCertificateDetails(Optional boolThrowException As Boolean = True) As X509Certificates.X509Certificate2
         If sslCertificate Is Nothing Then
@@ -730,7 +808,7 @@ Public Class httpHelper
                 httpWebRequest.Headers.Add(Net.HttpRequestHeader.AcceptEncoding, "gzip, deflate")
             End If
 
-            If boolUseProxy = True Then httpWebRequest.Proxy = Net.WebRequest.DefaultWebProxy
+            configureProxy(httpWebRequest)
 
             If strUserAgentString <> Nothing Then httpWebRequest.UserAgent = strUserAgentString
             If httpCookies.Count <> 0 Then getCookies(httpWebRequest)
@@ -869,7 +947,7 @@ Public Class httpHelper
                 httpWebRequest.Headers.Add(Net.HttpRequestHeader.AcceptEncoding, "gzip, deflate")
             End If
 
-            If boolUseProxy = True Then httpWebRequest.Proxy = Net.WebRequest.DefaultWebProxy
+            configureProxy(httpWebRequest)
 
             If strUserAgentString <> Nothing Then httpWebRequest.UserAgent = strUserAgentString
             If httpCookies.Count <> 0 Then getCookies(httpWebRequest)
@@ -989,7 +1067,8 @@ Public Class httpHelper
             End If
 
             If boolUseHTTPCompression = True Then httpWebRequest.Accept = "gzip, deflate"
-            If boolUseProxy = True Then httpWebRequest.Proxy = Net.WebRequest.DefaultWebProxy
+
+            configureProxy(httpWebRequest)
 
             If strUserAgentString <> Nothing Then httpWebRequest.UserAgent = strUserAgentString
             If httpCookies.Count <> 0 Then getCookies(httpWebRequest)
@@ -1108,7 +1187,8 @@ Public Class httpHelper
             End If
 
             If boolUseHTTPCompression = True Then httpWebRequest.Accept = "gzip, deflate"
-            If boolUseProxy = True Then httpWebRequest.Proxy = Net.WebRequest.DefaultWebProxy
+
+            configureProxy(httpWebRequest)
 
             httpWebRequest.KeepAlive = True
             httpWebRequest.ContentType = "multipart/form-data; boundary=" & boundary
@@ -1235,6 +1315,20 @@ Public Class httpHelper
         For Each entry As KeyValuePair(Of String, String) In additionalHTTPHeaders
             httpWebRequest.Headers(entry.Key) = entry.Value
         Next
+    End Sub
+
+    Private Sub configureProxy(ByRef httpWebRequest As Net.HttpWebRequest)
+        If boolUseProxy = True Then
+            If boolUseSystemProxy = True Then
+                httpWebRequest.Proxy = Net.WebRequest.DefaultWebProxy
+            Else
+                If customProxy Is Nothing Then
+                    httpWebRequest.Proxy = Net.WebRequest.DefaultWebProxy
+                Else
+                    httpWebRequest.Proxy = customProxy
+                End If
+            End If
+        End If
     End Sub
 
     Private Function convertLineFeeds(input As String) As String
