@@ -604,7 +604,7 @@ Public Class httpHelper
     ''' <example>httpPostObject.addHTTPHeader("myheader", "my header value")</example>
     ''' <exception cref="dataAlreadyExistsException">If this function throws an dataAlreadyExistsException, it means that this Class instance already has an Additional HTTP Header of that name in the Class instance.</exception>
     Public Sub addHTTPHeader(strHeaderName As String, strHeaderContents As String, Optional urlEncodeHeaderContent As Boolean = False)
-        If doesAdditionalHeaderExist(strHeaderName) = False Then
+        If Not doesAdditionalHeaderExist(strHeaderName) Then
             If urlEncodeHeaderContent Then
                 additionalHTTPHeaders.Add(strHeaderName.ToLower, Web.HttpUtility.UrlEncode(strHeaderContents))
             Else
@@ -624,7 +624,7 @@ Public Class httpHelper
     ''' <param name="urlEncodeHeaderContent">Optional setting, normally set to False. Tells the function if it should URLEncode the cookie contents before setting it.</param>
     ''' <exception cref="dataAlreadyExistsException">If this function throws a dataAlreadyExistsException, it means that the cookie already exists in this Class instance.</exception>
     Public Sub addHTTPCookie(strCookieName As String, strCookieValue As String, strDomainDomain As String, strCookiePath As String, Optional urlEncodeHeaderContent As Boolean = False)
-        If doesCookieExist(strCookieName) = False Then
+        If Not doesCookieExist(strCookieName) Then
             Dim cookieDetails As New cookieDetails() With {.cookieDomain = strDomainDomain, .cookiePath = strCookiePath}
 
             If urlEncodeHeaderContent Then
@@ -647,7 +647,7 @@ Public Class httpHelper
     ''' <param name="urlEncodeHeaderContent">Optional setting, normally set to False. Tells the function if it should URLEncode the cookie contents before setting it.</param>
     ''' <exception cref="dataAlreadyExistsException">If this function throws a dataAlreadyExistsException, it means that the cookie already exists in this Class instance.</exception>
     Public Sub addHTTPCookie(strCookieName As String, strCookieValue As String, strCookieDomain As String, Optional urlEncodeHeaderContent As Boolean = False)
-        If doesCookieExist(strCookieName) = False Then
+        If Not doesCookieExist(strCookieName) Then
             Dim cookieDetails As New cookieDetails() With {.cookieDomain = strCookieDomain, .cookiePath = "/"}
 
             If urlEncodeHeaderContent Then
@@ -705,7 +705,7 @@ Public Class httpHelper
     Public Sub addFileUpload(strFormName As String, strLocalFilePath As String, strRemoteFileName As String, strContentType As String, Optional throwExceptionIfItemAlreadyExists As Boolean = False)
         Dim fileInfo As New FileInfo(strLocalFilePath)
 
-        If fileInfo.Exists = False Then
+        If Not fileInfo.Exists Then
             lastException = New FileNotFoundException("Local file not found.", strLocalFilePath)
             Throw lastException
         ElseIf postData.ContainsKey(strFormName) Then
@@ -870,7 +870,7 @@ Public Class httpHelper
                 memStream.Dispose() ' Disposes the file stream.
             End If
 
-            If throwExceptionIfError = False Then Return False
+            If Not throwExceptionIfError Then Return False
 
             If customErrorHandler IsNot Nothing Then
                 customErrorHandler.DynamicInvoke(ex, Me)
@@ -1007,7 +1007,7 @@ Public Class httpHelper
                 fileWriteStream.Dispose() ' Disposes the file stream.
             End If
 
-            If throwExceptionIfError = False Then Return False
+            If Not throwExceptionIfError Then Return False
 
             If customErrorHandler IsNot Nothing Then
                 customErrorHandler.DynamicInvoke(ex, Me)
@@ -1117,7 +1117,7 @@ Public Class httpHelper
             End If
 
             lastException = ex
-            If throwExceptionIfError = False Then Return False
+            If Not throwExceptionIfError Then Return False
 
             If customErrorHandler IsNot Nothing Then
                 customErrorHandler.DynamicInvoke(ex, Me)
@@ -1272,7 +1272,7 @@ Public Class httpHelper
             End If
 
             lastException = ex
-            If throwExceptionIfError = False Then Return False
+            If Not throwExceptionIfError Then Return False
 
             If customErrorHandler IsNot Nothing Then
                 customErrorHandler.DynamicInvoke(ex, Me)
@@ -1343,7 +1343,7 @@ Public Class httpHelper
     Private Function getPOSTDataString() As String
         Dim postDataString As String = ""
         For Each entry As KeyValuePair(Of String, Object) In postData
-            If (TypeOf entry.Value Is FormFile) = False Then
+            If Not entry.Value.GetType.Equals(GetType(FormFile)) Then
                 postDataString &= entry.Key.Trim & "=" & Web.HttpUtility.UrlEncode(entry.Value.Trim) & "&"
             End If
         Next
