@@ -105,7 +105,7 @@ Public Class dataAlreadyExistsException
     End Sub
 End Class
 
-Public Class proxyConfigurationError
+Public Class proxyConfigurationErrorException
     Inherits Exception
 
     Public Sub New()
@@ -287,12 +287,12 @@ Public Class httpHelper
     ''' <param name="strServer">The proxy server's address, usually an IP address.</param>
     ''' <param name="intPort">The proxy port.</param>
     ''' <param name="boolByPassOnLocal">This tells the class instance if it should bypass the proxy for local servers. This is an optional value, by default it is True.</param>
-    ''' <exception cref="proxyConfigurationError">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
+    ''' <exception cref="proxyConfigurationErrorException">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
     Public Sub setProxy(strServer As String, intPort As Integer, strUsername As String, strPassword As String, Optional boolByPassOnLocal As Boolean = True)
         Try
             customProxy = New Net.WebProxy(String.Format("{0}:{1}", strServer, intPort.ToString), boolByPassOnLocal) With {.Credentials = New Net.NetworkCredential(strUsername, strPassword)}
         Catch ex As UriFormatException
-            Throw New proxyConfigurationError("There was an error setting up the proxy for this class instance.", ex)
+            Throw New proxyConfigurationErrorException("There was an error setting up the proxy for this class instance.", ex)
         End Try
     End Sub
 
@@ -300,24 +300,24 @@ Public Class httpHelper
     ''' <param name="boolByPassOnLocal">This tells the class instance if it should bypass the proxy for local servers. This is an optional value, by default it is True.</param>
     ''' <param name="strServer">The proxy server's address, usually an IP address.</param>
     ''' <param name="intPort">The proxy port.</param>
-    ''' <exception cref="proxyConfigurationError">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
+    ''' <exception cref="proxyConfigurationErrorException">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
     Public Sub setProxy(strServer As String, intPort As Integer, Optional boolByPassOnLocal As Boolean = True)
         Try
             customProxy = New Net.WebProxy(String.Format("{0}:{1}", strServer, intPort.ToString), boolByPassOnLocal)
         Catch ex As UriFormatException
-            Throw New proxyConfigurationError("There was an error setting up the proxy for this class instance.", ex)
+            Throw New proxyConfigurationErrorException("There was an error setting up the proxy for this class instance.", ex)
         End Try
     End Sub
 
     ''' <summary>Sets up a custom proxy configuration for this class instance.</summary>
     ''' <param name="boolByPassOnLocal">This tells the class instance if it should bypass the proxy for local servers. This is an optional value, by default it is True.</param>
     ''' <param name="strServer">The proxy server's address, usually an IP address followed up by a ":" followed up by a port number.</param>
-    ''' <exception cref="proxyConfigurationError">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
+    ''' <exception cref="proxyConfigurationErrorException">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
     Public Sub setProxy(strServer As String, Optional boolByPassOnLocal As Boolean = True)
         Try
             customProxy = New Net.WebProxy(strServer, boolByPassOnLocal)
         Catch ex As UriFormatException
-            Throw New proxyConfigurationError("There was an error setting up the proxy for this class instance.", ex)
+            Throw New proxyConfigurationErrorException("There was an error setting up the proxy for this class instance.", ex)
         End Try
     End Sub
 
@@ -326,12 +326,12 @@ Public Class httpHelper
     ''' <param name="strServer">The proxy server's address, usually an IP address followed up by a ":" followed up by a port number.</param>
     ''' <param name="strUsername">The username you want to pass to the server.</param>
     ''' <param name="strPassword">The password you want to pass to the server.</param>
-    ''' <exception cref="proxyConfigurationError">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
+    ''' <exception cref="proxyConfigurationErrorException">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
     Public Sub setProxy(strServer As String, strUsername As String, strPassword As String, Optional boolByPassOnLocal As Boolean = True)
         Try
             customProxy = New Net.WebProxy(strServer, boolByPassOnLocal) With {.Credentials = New Net.NetworkCredential(strUsername, strPassword)}
         Catch ex As UriFormatException
-            Throw New proxyConfigurationError("There was an error setting up the proxy for this class instance.", ex)
+            Throw New proxyConfigurationErrorException("There was an error setting up the proxy for this class instance.", ex)
         End Try
     End Sub
 
