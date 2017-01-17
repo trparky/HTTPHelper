@@ -91,10 +91,19 @@ Public Class Form1
         ' First we create our httpHelper Class instance.
         Dim httpHelper As New HTTPHelper.httpHelper()
         httpHelper.setUserAgent = "Microsoft .NET" ' Set our User Agent String.
+        httpHelper.enableMultiThreadedDownloadStatusUpdates = True
+        Dim oldFileSize As ULong = 0
 
         ' Now we set up our download status updating Lambda function that's passed to the Class instance to execute within the memory space of the Class.
         httpHelper.setDownloadStatusUpdateRoutine = Sub(ByVal downloadStatusDetails As HTTPHelper.downloadStatusDetails)
-                                                        Label1.Invoke(Sub() Label1.Text = String.Format("Downloaded {0} of {1}", httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.localFileSize), httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.remoteFileSize)))
+                                                        If httpHelper.enableMultiThreadedDownloadStatusUpdates Then
+                                                            Label1.Invoke(Sub() Label1.Text = String.Format("Downloaded {0} of {1} ({2}/s)", httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.localFileSize), httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.remoteFileSize), httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.localFileSize - oldFileSize)))
+
+                                                            oldFileSize = downloadStatusDetails.localFileSize
+                                                        Else
+                                                            Label1.Invoke(Sub() Label1.Text = String.Format("Downloaded {0} of {1}", httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.localFileSize), httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.remoteFileSize)))
+                                                        End If
+
                                                         Label2.Invoke(Sub() Label2.Text = downloadStatusDetails.percentageDownloaded.ToString & "%")
                                                         ProgressBar1.Invoke(Sub() ProgressBar1.Value = downloadStatusDetails.percentageDownloaded)
                                                     End Sub
