@@ -228,7 +228,7 @@ Public Class httpHelper
     Private customProxy As Net.IWebProxy = Nothing
     Private httpResponseHeaders As Net.WebHeaderCollection = Nothing
     Private httpDownloadProgressPercentage As Short = 0
-    Private remoteFileSize, currentFileSize, bytesPerSecond As ULong
+    Private remoteFileSize, currentFileSize As ULong
     Private httpTimeOut As Long = 5000
     Private boolUseHTTPCompression As Boolean = True
     Private lastAccessedURL As String = Nothing
@@ -383,7 +383,6 @@ Public Class httpHelper
 
         remoteFileSize = 0
         currentFileSize = 0
-        bytesPerSecond = 0
 
         sslCertificate = Nothing
         urlPreProcessor = Nothing
@@ -827,24 +826,29 @@ Public Class httpHelper
 
             Dim responseStream As Stream = webResponse.GetResponseStream() ' Gets the response stream.
 
-            Dim count As Long = responseStream.Read(dataBuffer, 0, dataBuffer.Length) ' Reads some data from the HTTP stream into our data buffer.
+            Dim lngBytesReadFromInternet As Long = responseStream.Read(dataBuffer, 0, dataBuffer.Length) ' Reads some data from the HTTP stream into our data buffer.
             Dim oldCurrentFileSize As Long = 0
 
             ' We keep looping until all of the data has been downloaded.
-            While count <> 0
+            While lngBytesReadFromInternet <> 0
                 ' We calculate the current file size by adding the amount of data that we've so far
                 ' downloaded from the server repeatedly to a variable called "currentFileSize".
-                currentFileSize += count
-                memStream.Write(dataBuffer, 0, count) ' Writes the data directly to disk.
-                httpDownloadProgressPercentage = Math.Round((memStream.Length / remoteFileSize) * 100, 0)
+                currentFileSize += lngBytesReadFromInternet
 
-                downloadStatusDetails = New downloadStatusDetails With {.remoteFileSize = remoteFileSize, .percentageDownloaded = httpDownloadProgressPercentage, .localFileSize = currentFileSize}
+                memStream.Write(dataBuffer, 0, lngBytesReadFromInternet) ' Writes the data directly to disk.
 
+                httpDownloadProgressPercentage = Math.Round((memStream.Length / remoteFileSize) * 100, 0) ' Update the download percentage value.
+
+                downloadStatusDetails = New downloadStatusDetails With {.remoteFileSize = remoteFileSize, .percentageDownloaded = httpDownloadProgressPercentage, .localFileSize = currentFileSize} ' Update the downloadStatusDetails.
+
+                ' Checks to see if we have a status update routine to invoke.
                 If downloadStatusUpdater IsNot Nothing Then
+                    ' We invoke the status update routine if we have one to invoke. This is usually injected
+                    ' into the class instance by the programmer who's using this class in his/her program.
                     downloadStatusUpdater.DynamicInvoke(downloadStatusDetails)
                 End If
 
-                count = responseStream.Read(dataBuffer, 0, dataBuffer.Length) ' Reads more data into our data buffer.
+                lngBytesReadFromInternet = responseStream.Read(dataBuffer, 0, dataBuffer.Length) ' Reads more data into our data buffer.
             End While
 
             ' Before we return the MemoryStream to the user we have to reset the position back to the beginning of the Stream. This is so that when the
@@ -967,24 +971,29 @@ Public Class httpHelper
             Dim responseStream As Stream = webResponse.GetResponseStream() ' Gets the response stream.
             fileWriteStream = New FileStream(localFileName, FileMode.Create) ' Creates a file write stream.
 
-            Dim count As Long = responseStream.Read(dataBuffer, 0, dataBuffer.Length) ' Reads some data from the HTTP stream into our data buffer.
+            Dim lngBytesReadFromInternet As Long = responseStream.Read(dataBuffer, 0, dataBuffer.Length) ' Reads some data from the HTTP stream into our data buffer.
             Dim oldCurrentFileSize As Long = 0
 
             ' We keep looping until all of the data has been downloaded.
-            While count <> 0
+            While lngBytesReadFromInternet <> 0
                 ' We calculate the current file size by adding the amount of data that we've so far
                 ' downloaded from the server repeatedly to a variable called "currentFileSize".
-                currentFileSize += count
-                fileWriteStream.Write(dataBuffer, 0, count) ' Writes the data directly to disk.
-                httpDownloadProgressPercentage = Math.Round((fileWriteStream.Length / remoteFileSize) * 100, 0)
+                currentFileSize += lngBytesReadFromInternet
 
-                downloadStatusDetails = New downloadStatusDetails With {.remoteFileSize = remoteFileSize, .percentageDownloaded = httpDownloadProgressPercentage, .localFileSize = currentFileSize}
+                fileWriteStream.Write(dataBuffer, 0, lngBytesReadFromInternet) ' Writes the data directly to disk.
 
+                httpDownloadProgressPercentage = Math.Round((fileWriteStream.Length / remoteFileSize) * 100, 0) ' Update the download percentage value.
+
+                downloadStatusDetails = New downloadStatusDetails With {.remoteFileSize = remoteFileSize, .percentageDownloaded = httpDownloadProgressPercentage, .localFileSize = currentFileSize} ' Update the downloadStatusDetails.
+
+                ' Checks to see if we have a status update routine to invoke.
                 If downloadStatusUpdater IsNot Nothing Then
+                    ' We invoke the status update routine if we have one to invoke. This is usually injected
+                    ' into the class instance by the programmer who's using this class in his/her program.
                     downloadStatusUpdater.DynamicInvoke(downloadStatusDetails)
                 End If
 
-                count = responseStream.Read(dataBuffer, 0, dataBuffer.Length) ' Reads more data into our data buffer.
+                lngBytesReadFromInternet = responseStream.Read(dataBuffer, 0, dataBuffer.Length) ' Reads more data into our data buffer.
             End While
 
             fileWriteStream.Close() ' Closes the file stream.
