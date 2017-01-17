@@ -9,8 +9,8 @@ Public Class FormFile
         Get
             Return m_Name
         End Get
-        Set
-            m_Name = Value
+        Set(value As String)
+            m_Name = value
         End Set
     End Property
 
@@ -19,8 +19,8 @@ Public Class FormFile
         Get
             Return m_ContentType
         End Get
-        Set
-            m_ContentType = Value
+        Set(value As String)
+            m_ContentType = value
         End Set
     End Property
 
@@ -29,8 +29,8 @@ Public Class FormFile
         Get
             Return m_FilePath
         End Get
-        Set
-            m_FilePath = Value
+        Set(value As String)
+            m_FilePath = value
         End Set
     End Property
 
@@ -39,8 +39,8 @@ Public Class FormFile
         Get
             Return m_uploadedFileName
         End Get
-        Set
-            m_uploadedFileName = Value
+        Set(value As String)
+            m_uploadedFileName = value
         End Set
     End Property
 End Class
@@ -220,7 +220,7 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class httpHelper
-    Private Const classVersion As String = "1.245"
+    Private Const classVersion As String = "1.250"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -233,6 +233,9 @@ Public Class httpHelper
     Private boolUseHTTPCompression As Boolean = True
     Private lastAccessedURL As String = Nothing
     Private lastException As Exception = Nothing
+    Private boolRunDownloadStatusUpdatePluginInSeparateThread As Boolean = True
+    Private downloadStatusUpdaterThread As Threading.Thread = Nothing
+    Private _intDownloadThreadSleepTime As Integer = 1000
 
     Private additionalHTTPHeaders As New Dictionary(Of String, String)
     Private httpCookies As New Dictionary(Of String, cookieDetails)
@@ -264,8 +267,8 @@ Public Class httpHelper
     ''' httpHelper.setCustomErrorHandler((Exception ex, httpHelper classInstance) => { }
     ''' </example>
     Public WriteOnly Property setCustomErrorHandler As [Delegate]
-        Set
-            customErrorHandler = Value
+        Set(value As [Delegate])
+            customErrorHandler = value
         End Set
     End Property
 
@@ -353,8 +356,8 @@ Public Class httpHelper
     ''' httpHelper.setDownloadStatusUpdateRoutine((downloadStatusDetails downloadStatusDetails) => { })
     ''' </example>
     Public WriteOnly Property setDownloadStatusUpdateRoutine As [Delegate]
-        Set
-            downloadStatusUpdater = Value
+        Set(value As [Delegate])
+            downloadStatusUpdater = value
         End Set
     End Property
 
@@ -369,8 +372,8 @@ Public Class httpHelper
     ''' End Function)
     ''' </example>
     Public WriteOnly Property setURLPreProcessor As Func(Of String, String)
-        Set
-            urlPreProcessor = Value
+        Set(value As Func(Of String, String))
+            urlPreProcessor = value
         End Set
     End Property
 
@@ -401,8 +404,8 @@ Public Class httpHelper
 
     ''' <summary>Tells the Class instance if it should use the system proxy.</summary>
     Public WriteOnly Property useSystemProxy As Boolean
-        Set
-            boolUseSystemProxy = Value
+        Set(value As Boolean)
+            boolUseSystemProxy = value
         End Set
     End Property
 
@@ -528,32 +531,32 @@ Public Class httpHelper
 
     ''' <summary>Tells the HTTPPost Class if you want to use a Proxy or not.</summary>
     Public WriteOnly Property setProxyMode As Boolean
-        Set
-            boolUseProxy = Value
+        Set(value As Boolean)
+            boolUseProxy = value
         End Set
     End Property
 
     ''' <summary>Sets a timeout for any HTTP requests in this Class. Normally it's set for 5 seconds. The input is the amount of time in seconds (NOT milliseconds) that you want your HTTP requests to timeout in. The class will translate the seconds to milliseconds for you.</summary>
     ''' <value>The amount of time in seconds (NOT milliseconds) that you want your HTTP requests to timeout in. This function will translate the seconds to milliseconds for you.</value>
     Public WriteOnly Property setHTTPTimeout As Short
-        Set
-            httpTimeOut = Value * 1000
+        Set(value As Short)
+            httpTimeOut = value * 1000
         End Set
     End Property
 
     ''' <summary>Tells this Class instance if it should use HTTP compression for transport. Using HTTP Compression can save bandwidth. Normally the Class is setup to use HTTP Compression by default.</summary>
     ''' <value>Boolean value.</value>
     Public WriteOnly Property useHTTPCompression As Boolean
-        Set
-            boolUseHTTPCompression = Value
+        Set(value As Boolean)
+            boolUseHTTPCompression = value
         End Set
     End Property
 
     ''' <summary>Sets the User Agent String to be used by the HTTPPost Class.</summary>
     ''' <value>Your User Agent String.</value>
     Public WriteOnly Property setUserAgent As String
-        Set
-            strUserAgentString = Value
+        Set(value As String)
+            strUserAgentString = value
         End Set
     End Property
 
@@ -770,6 +773,69 @@ Public Class httpHelper
         End Get
     End Property
 
+    ''' <summary>This tells the current HTTPHelper Class Instance if it should run the download update status routine in a separate thread. By default this is enabled.</summary>
+    Public Property enableMultiThreadedDownloadStatusUpdates As Boolean
+        Get
+            Return boolRunDownloadStatusUpdatePluginInSeparateThread
+        End Get
+        Set(value As Boolean)
+            boolRunDownloadStatusUpdatePluginInSeparateThread = value
+        End Set
+    End Property
+
+    ''' <summary>Sets the amount of time in miliseconds that the download status updating thread sleeps. The default is 1000 ms or 1 second, perfect for calculating the amount of data downloaded per second.</summary>
+    Public WriteOnly Property intDownloadThreadSleepTime As Integer
+        Set(value As Integer)
+            _intDownloadThreadSleepTime = value
+        End Set
+    End Property
+
+    Private Sub downloadStatusUpdaterThreadSubroutine()
+        Try
+beginAgain:
+            downloadStatusUpdater.DynamicInvoke(downloadStatusDetails)
+            Threading.Thread.Sleep(_intDownloadThreadSleepTime)
+            GoTo beginAgain
+        Catch ex As Threading.ThreadAbortException
+            ' Does nothing
+        Catch ex2 As Reflection.TargetInvocationException
+            ' Does nothing
+        End Try
+    End Sub
+
+    ''' <summary>This subroutine is used by the downloadFile function to update the download status of the file that's being downloaded by the class instance.</summary>
+    Private Sub downloadStatusUpdateInvoker()
+        downloadStatusDetails = New downloadStatusDetails With {.remoteFileSize = remoteFileSize, .percentageDownloaded = httpDownloadProgressPercentage, .localFileSize = currentFileSize} ' Update the downloadStatusDetails.
+
+        ' Checks to see if we have a status update routine to invoke.
+        If downloadStatusUpdater IsNot Nothing Then
+            ' We invoke the status update routine if we have one to invoke. This is usually injected
+            ' into the class instance by the programmer who's using this class in his/her program.
+            If boolRunDownloadStatusUpdatePluginInSeparateThread Then
+                If downloadStatusUpdaterThread Is Nothing Then
+                    downloadStatusUpdaterThread = New Threading.Thread(AddressOf downloadStatusUpdaterThreadSubroutine)
+                    downloadStatusUpdaterThread.IsBackground = True
+                    downloadStatusUpdaterThread.Priority = Threading.ThreadPriority.Lowest
+                    downloadStatusUpdaterThread.Name = "HTTPHelper Class Download Status Updating Thread"
+                    downloadStatusUpdaterThread.Start()
+                End If
+            Else
+                downloadStatusUpdater.DynamicInvoke(downloadStatusDetails)
+            End If
+        End If
+    End Sub
+
+    Private Sub abortDownloadStatusUpdaterThread()
+        Try
+            If downloadStatusUpdaterThread IsNot Nothing And boolRunDownloadStatusUpdatePluginInSeparateThread Then
+                downloadStatusUpdaterThread.Abort()
+                downloadStatusUpdaterThread = Nothing
+            End If
+        Catch ex As Exception
+            ' Does nothing
+        End Try
+    End Sub
+
     ''' <summary>Downloads a file from a web server while feeding back the status of the download. You can find the percentage of the download in the httpDownloadProgressPercentage variable. This function gives you the programmer more control over how HTTP downloads are done. For instance, if you don't want to write the data directly out to disk until the download is complete, this function gives you that ability whereas the downloadFile() function writes the downloaded data directly to disk bypassing system RAM. This is good for those cases you may be writing the data to an SSD in which you only want to write the data to the SSD until the download is known to be successful.</summary>
     ''' <param name="fileDownloadURL">The HTTP Path to a file on a remote server to download.</param>
     ''' <param name="memStream">This is a IO.MemoryStream, it is passed as a ByRef so that the function will be able to act on the IO.MemoryStream() Object you pass to it. At the end of the download, if it is successful, the function will reset the position back to 0 for writing to whatever stream you choose.</param>
@@ -837,16 +903,8 @@ Public Class httpHelper
 
                 memStream.Write(dataBuffer, 0, lngBytesReadFromInternet) ' Writes the data directly to disk.
 
-                httpDownloadProgressPercentage = Math.Round((memStream.Length / remoteFileSize) * 100, 0) ' Update the download percentage value.
-
-                downloadStatusDetails = New downloadStatusDetails With {.remoteFileSize = remoteFileSize, .percentageDownloaded = httpDownloadProgressPercentage, .localFileSize = currentFileSize} ' Update the downloadStatusDetails.
-
-                ' Checks to see if we have a status update routine to invoke.
-                If downloadStatusUpdater IsNot Nothing Then
-                    ' We invoke the status update routine if we have one to invoke. This is usually injected
-                    ' into the class instance by the programmer who's using this class in his/her program.
-                    downloadStatusUpdater.DynamicInvoke(downloadStatusDetails)
-                End If
+                httpDownloadProgressPercentage = Math.Round((currentFileSize / remoteFileSize) * 100, 0) ' Update the download percentage value.
+                downloadStatusUpdateInvoker()
 
                 lngBytesReadFromInternet = responseStream.Read(dataBuffer, 0, dataBuffer.Length) ' Reads more data into our data buffer.
             End While
@@ -857,8 +915,12 @@ Public Class httpHelper
             ' on the IO.MemoryStream Object the user will have nothing written out because the IO.MemoryStream will be at the end of the stream.
             memStream.Position = 0
 
+            abortDownloadStatusUpdaterThread()
+
             Return True
         Catch ex As Threading.ThreadAbortException
+            abortDownloadStatusUpdaterThread()
+
             If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
 
             If memStream IsNot Nothing Then
@@ -868,6 +930,8 @@ Public Class httpHelper
 
             Return False
         Catch ex As Exception
+            abortDownloadStatusUpdaterThread()
+
             lastException = ex
             If memStream IsNot Nothing Then
                 memStream.Close() ' Closes the file stream.
@@ -982,16 +1046,8 @@ Public Class httpHelper
 
                 fileWriteStream.Write(dataBuffer, 0, lngBytesReadFromInternet) ' Writes the data directly to disk.
 
-                httpDownloadProgressPercentage = Math.Round((fileWriteStream.Length / remoteFileSize) * 100, 0) ' Update the download percentage value.
-
-                downloadStatusDetails = New downloadStatusDetails With {.remoteFileSize = remoteFileSize, .percentageDownloaded = httpDownloadProgressPercentage, .localFileSize = currentFileSize} ' Update the downloadStatusDetails.
-
-                ' Checks to see if we have a status update routine to invoke.
-                If downloadStatusUpdater IsNot Nothing Then
-                    ' We invoke the status update routine if we have one to invoke. This is usually injected
-                    ' into the class instance by the programmer who's using this class in his/her program.
-                    downloadStatusUpdater.DynamicInvoke(downloadStatusDetails)
-                End If
+                httpDownloadProgressPercentage = Math.Round((currentFileSize / remoteFileSize) * 100, 0) ' Update the download percentage value.
+                downloadStatusUpdateInvoker()
 
                 lngBytesReadFromInternet = responseStream.Read(dataBuffer, 0, dataBuffer.Length) ' Reads more data into our data buffer.
             End While
@@ -999,8 +1055,17 @@ Public Class httpHelper
             fileWriteStream.Close() ' Closes the file stream.
             fileWriteStream.Dispose() ' Disposes the file stream.
 
+            If downloadStatusUpdaterThread IsNot Nothing And boolRunDownloadStatusUpdatePluginInSeparateThread Then
+                downloadStatusUpdaterThread.Abort()
+                downloadStatusUpdaterThread = Nothing
+            End If
+
+            abortDownloadStatusUpdaterThread()
+
             Return True
         Catch ex As Threading.ThreadAbortException
+            abortDownloadStatusUpdaterThread()
+
             If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
 
             If fileWriteStream IsNot Nothing Then
@@ -1010,6 +1075,8 @@ Public Class httpHelper
 
             Return False
         Catch ex As Exception
+            abortDownloadStatusUpdaterThread()
+
             lastException = ex
             If fileWriteStream IsNot Nothing Then
                 fileWriteStream.Close() ' Closes the file stream.
