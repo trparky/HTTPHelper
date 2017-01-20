@@ -236,6 +236,7 @@ Public Class httpHelper
     Private boolRunDownloadStatusUpdatePluginInSeparateThread As Boolean = True
     Private downloadStatusUpdaterThread As Threading.Thread = Nothing
     Private _intDownloadThreadSleepTime As Integer = 1000
+    Private intDownloadBufferSize As Integer = 8191 ' The default is 8192 bytes or 8 KBs.
 
     Private additionalHTTPHeaders As New Dictionary(Of String, String)
     Private httpCookies As New Dictionary(Of String, cookieDetails)
@@ -255,6 +256,13 @@ Public Class httpHelper
         Get
             Return downloadStatusDetails
         End Get
+    End Property
+
+    ''' <summary>Sets the size of the download buffer to hold data in memory during the downloading of a file. The default is 8192 bytes or 8 KBs.</summary>
+    Public WriteOnly Property setDownloadBufferSize As Integer
+        Set(value As Integer)
+            intDownloadBufferSize = value - 1
+        End Set
     End Property
 
     ''' <summary>This allows you to inject your own error handler for HTTP exceptions into the Class instance.</summary>
@@ -855,8 +863,8 @@ beginAgain:
             End If
             lastAccessedURL = fileDownloadURL
 
-            ' A data buffer that holds 4096 bytes or 4 KBs. We use this data buffer to hold the stream of data from the web server.
-            Dim dataBuffer As Byte() = New Byte(4095) {}
+            ' We create a new data buffer to hold the stream of data from the web server.
+            Dim dataBuffer As Byte() = New Byte(intDownloadBufferSize) {}
 
             httpWebRequest = DirectCast(Net.WebRequest.Create(fileDownloadURL), Net.HttpWebRequest)
             httpWebRequest.Timeout = httpTimeOut
@@ -888,7 +896,7 @@ beginAgain:
             End If
 
             ' Gets the size of the remote file on the web server.
-            remoteFileSize = Long.Parse(webResponse.Headers("Content-Length").ToString)
+            remoteFileSize = webResponse.ContentLength
 
             Dim responseStream As Stream = webResponse.GetResponseStream() ' Gets the response stream.
 
@@ -997,8 +1005,8 @@ beginAgain:
                 End If
             End If
 
-            ' A data buffer that holds 4096 bytes or 4 KBs. We use this data buffer to hold the stream of data from the web server.
-            Dim dataBuffer As Byte() = New Byte(4095) {}
+            ' We create a new data buffer to hold the stream of data from the web server.
+            Dim dataBuffer As Byte() = New Byte(intDownloadBufferSize) {}
 
             httpWebRequest = DirectCast(Net.WebRequest.Create(fileDownloadURL), Net.HttpWebRequest)
             httpWebRequest.Timeout = httpTimeOut
@@ -1030,7 +1038,7 @@ beginAgain:
             End If
 
             ' Gets the size of the remote file on the web server.
-            remoteFileSize = Long.Parse(webResponse.Headers("Content-Length").ToString)
+            remoteFileSize = webResponse.ContentLength
 
             Dim responseStream As Stream = webResponse.GetResponseStream() ' Gets the response stream.
             fileWriteStream = New FileStream(localFileName, FileMode.Create) ' Creates a file write stream.
