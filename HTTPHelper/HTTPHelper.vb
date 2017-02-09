@@ -220,7 +220,7 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class httpHelper
-    Private Const classVersion As String = "1.255"
+    Private Const classVersion As String = "1.260"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -1116,6 +1116,122 @@ beginAgain:
                 Return False
             End If
 
+            Return False
+        End Try
+    End Function
+
+    ''' <summary>Performs an HTTP Request for data from a web server.</summary>
+    ''' <param name="url">This is the URL that the program will send to the web server in the HTTP request. Do not include any GET variables in the URL, use the addGETData() function before calling this function.</param>
+    ''' <param name="httpResponseText">This is a ByRef variable so declare it before passing it to this function, think of this as a pointer. The HTML/text content that the web server on the other end responds with is put into this variable and passed back in a ByRef function.</param>
+    ''' <returns>A Boolean value. If the HTTP operation was successful it returns a TRUE value, if not FALSE.</returns>
+    ''' <exception cref="Net.WebException">If this function throws a Net.WebException then something failed during the HTTP request.</exception>
+    ''' <exception cref="Exception">If this function throws a general Exception, something really went wrong; something that the function normally doesn't handle.</exception>
+    ''' <exception cref="httpProtocolException">This exception is thrown if the server responds with an HTTP Error.</exception>
+    ''' <exception cref="sslErrorException">If this function throws an sslErrorException, an error occurred while negotiating an SSL connection.</exception>
+    ''' <example>httpPostObject.getWebData("http://www.myserver.com/mywebpage", httpResponseText)</example>
+    ''' <param name="throwExceptionIfError">Normally True. If True this function will throw an exception if an error occurs. If set to False, the function simply returns False if an error occurs; this is a much more simpler way to handle errors.</param>
+    ''' <param name="shortRangeTo">This controls how much data is downloaded from the server.</param>
+    ''' <param name="shortRangeFrom">This controls how much data is downloaded from the server.</param>
+    Public Function getWebData(ByVal url As String, ByRef httpResponseText As String, shortRangeFrom As Short, shortRangeTo As Short, Optional throwExceptionIfError As Boolean = True) As Boolean
+        Dim httpWebRequest As Net.HttpWebRequest = Nothing
+
+        Try
+            If urlPreProcessor IsNot Nothing Then
+                url = urlPreProcessor(url)
+            End If
+            lastAccessedURL = url
+
+            If getData.Count <> 0 Then url &= "?" & Me.getGETDataString
+
+            httpWebRequest = DirectCast(Net.WebRequest.Create(url), Net.HttpWebRequest)
+            httpWebRequest.Timeout = httpTimeOut
+            httpWebRequest.KeepAlive = True
+
+            httpWebRequest.AddRange(shortRangeFrom, shortRangeTo)
+
+            If credentials IsNot Nothing Then
+                httpWebRequest.PreAuthenticate = True
+                addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPassword)))
+            End If
+
+            If boolUseHTTPCompression Then httpWebRequest.Accept = "gzip, deflate"
+
+            configureProxy(httpWebRequest)
+
+            If strUserAgentString <> Nothing Then httpWebRequest.UserAgent = strUserAgentString
+            If httpCookies.Count <> 0 Then getCookies(httpWebRequest)
+            If additionalHTTPHeaders.Count <> 0 Then getHeaders(httpWebRequest)
+
+            If postData.Count = 0 Then
+                httpWebRequest.Method = "GET"
+            Else
+                httpWebRequest.Method = "POST"
+                Dim postDataString As String = Me.getPOSTDataString
+                httpWebRequest.ContentType = "application/x-www-form-urlencoded"
+                httpWebRequest.ContentLength = postDataString.Length
+
+                Dim httpRequestWriter = New StreamWriter(httpWebRequest.GetRequestStream())
+                httpRequestWriter.Write(postDataString)
+                httpRequestWriter.Close()
+                httpRequestWriter.Dispose()
+                httpRequestWriter = Nothing
+            End If
+
+            Dim httpWebResponse As Net.WebResponse = httpWebRequest.GetResponse()
+
+            If url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) Then
+                sslCertificate = New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate)
+            Else
+                sslCertificate = Nothing
+            End If
+
+            Dim httpInStream As New StreamReader(httpWebResponse.GetResponseStream())
+            Dim httpTextOutput As String = httpInStream.ReadToEnd.Trim()
+            httpResponseHeaders = httpWebResponse.Headers
+
+            httpInStream.Close()
+            httpInStream.Dispose()
+
+            httpWebResponse.Close()
+            httpWebResponse = Nothing
+            httpWebRequest = Nothing
+
+            httpResponseText = convertLineFeeds(httpTextOutput).Trim()
+            Return True
+        Catch ex As Exception
+            If TypeOf ex Is Threading.ThreadAbortException Then
+                If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
+                Return False
+            End If
+
+            lastException = ex
+            If Not throwExceptionIfError Then Return False
+
+            If customErrorHandler IsNot Nothing Then
+                customErrorHandler.DynamicInvoke(ex, Me)
+                ' Since we handled the exception with an injected custom error handler, we can now exit the function with the return of a False value.
+                Return False
+            End If
+
+            If TypeOf ex Is Net.WebException Then
+                Dim ex2 As Net.WebException = DirectCast(ex, Net.WebException)
+
+                If ex2.Status = Net.WebExceptionStatus.ProtocolError Then
+                    Throw handleWebExceptionProtocolError(url, ex2)
+                    Return False
+                ElseIf ex2.Status = Net.WebExceptionStatus.TrustFailure Then
+                    lastException = New sslErrorException("There was an error establishing an SSL connection.", ex2)
+                    Throw lastException
+                    Return False
+                End If
+
+                lastException = New Net.WebException(ex.Message, ex2)
+                Throw lastException
+                Return False
+            End If
+
+            lastException = New Exception(ex.Message, ex)
+            Throw lastException
             Return False
         End Try
     End Function
