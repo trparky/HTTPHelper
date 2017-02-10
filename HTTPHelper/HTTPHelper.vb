@@ -220,7 +220,7 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class httpHelper
-    Private Const classVersion As String = "1.260"
+    Private Const classVersion As String = "1.265"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -237,6 +237,7 @@ Public Class httpHelper
     Private downloadStatusUpdaterThread As Threading.Thread = Nothing
     Private _intDownloadThreadSleepTime As Integer = 1000
     Private intDownloadBufferSize As Integer = 8191 ' The default is 8192 bytes or 8 KBs.
+    Private strLastHTTPServerResponse As String
 
     Private additionalHTTPHeaders As New Dictionary(Of String, String)
     Private httpCookies As New Dictionary(Of String, cookieDetails)
@@ -400,6 +401,7 @@ Public Class httpHelper
         customErrorHandler = Nothing
         downloadStatusUpdater = Nothing
         httpResponseHeaders = Nothing
+        strLastHTTPServerResponse = Nothing
     End Sub
 
     ''' <summary>Returns the last accessed URL by this Class instance.</summary>
@@ -867,33 +869,12 @@ beginAgain:
             Dim dataBuffer As Byte() = New Byte(intDownloadBufferSize) {}
 
             httpWebRequest = DirectCast(Net.WebRequest.Create(fileDownloadURL), Net.HttpWebRequest)
-            httpWebRequest.Timeout = httpTimeOut
-            httpWebRequest.KeepAlive = True
-
-            If credentials IsNot Nothing Then
-                httpWebRequest.PreAuthenticate = True
-                addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPassword)))
-            End If
-
-            If boolUseHTTPCompression Then
-                ' We tell the web server that we can accept a GZIP and Deflate compressed data stream.
-                httpWebRequest.Accept = "gzip, deflate"
-                httpWebRequest.Headers.Add(Net.HttpRequestHeader.AcceptEncoding, "gzip, deflate")
-            End If
 
             configureProxy(httpWebRequest)
-
-            If strUserAgentString <> Nothing Then httpWebRequest.UserAgent = strUserAgentString
-            If httpCookies.Count <> 0 Then getCookies(httpWebRequest)
-            If additionalHTTPHeaders.Count <> 0 Then getHeaders(httpWebRequest)
+            addParametersToWebRequest(httpWebRequest)
 
             Dim webResponse As Net.WebResponse = httpWebRequest.GetResponse() ' We now get the web response.
-
-            If fileDownloadURL.StartsWith("https://", StringComparison.OrdinalIgnoreCase) Then
-                sslCertificate = New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate)
-            Else
-                sslCertificate = Nothing
-            End If
+            captureSSLInfo(fileDownloadURL, httpWebRequest)
 
             ' Gets the size of the remote file on the web server.
             remoteFileSize = webResponse.ContentLength
@@ -1009,33 +990,12 @@ beginAgain:
             Dim dataBuffer As Byte() = New Byte(intDownloadBufferSize) {}
 
             httpWebRequest = DirectCast(Net.WebRequest.Create(fileDownloadURL), Net.HttpWebRequest)
-            httpWebRequest.Timeout = httpTimeOut
-            httpWebRequest.KeepAlive = True
-
-            If credentials IsNot Nothing Then
-                httpWebRequest.PreAuthenticate = True
-                addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPassword)))
-            End If
-
-            If boolUseHTTPCompression Then
-                ' We tell the web server that we can accept a GZIP and Deflate compressed data stream.
-                httpWebRequest.Accept = "gzip, deflate"
-                httpWebRequest.Headers.Add(Net.HttpRequestHeader.AcceptEncoding, "gzip, deflate")
-            End If
 
             configureProxy(httpWebRequest)
-
-            If strUserAgentString <> Nothing Then httpWebRequest.UserAgent = strUserAgentString
-            If httpCookies.Count <> 0 Then getCookies(httpWebRequest)
-            If additionalHTTPHeaders.Count <> 0 Then getHeaders(httpWebRequest)
+            addParametersToWebRequest(httpWebRequest)
 
             Dim webResponse As Net.WebResponse = httpWebRequest.GetResponse() ' We now get the web response.
-
-            If fileDownloadURL.StartsWith("https://", StringComparison.OrdinalIgnoreCase) Then
-                sslCertificate = New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate)
-            Else
-                sslCertificate = Nothing
-            End If
+            captureSSLInfo(fileDownloadURL, httpWebRequest)
 
             ' Gets the size of the remote file on the web server.
             remoteFileSize = webResponse.ContentLength
@@ -1144,46 +1104,14 @@ beginAgain:
             If getData.Count <> 0 Then url &= "?" & Me.getGETDataString
 
             httpWebRequest = DirectCast(Net.WebRequest.Create(url), Net.HttpWebRequest)
-            httpWebRequest.Timeout = httpTimeOut
-            httpWebRequest.KeepAlive = True
-
             httpWebRequest.AddRange(shortRangeFrom, shortRangeTo)
 
-            If credentials IsNot Nothing Then
-                httpWebRequest.PreAuthenticate = True
-                addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPassword)))
-            End If
-
-            If boolUseHTTPCompression Then httpWebRequest.Accept = "gzip, deflate"
-
             configureProxy(httpWebRequest)
-
-            If strUserAgentString <> Nothing Then httpWebRequest.UserAgent = strUserAgentString
-            If httpCookies.Count <> 0 Then getCookies(httpWebRequest)
-            If additionalHTTPHeaders.Count <> 0 Then getHeaders(httpWebRequest)
-
-            If postData.Count = 0 Then
-                httpWebRequest.Method = "GET"
-            Else
-                httpWebRequest.Method = "POST"
-                Dim postDataString As String = Me.getPOSTDataString
-                httpWebRequest.ContentType = "application/x-www-form-urlencoded"
-                httpWebRequest.ContentLength = postDataString.Length
-
-                Dim httpRequestWriter = New StreamWriter(httpWebRequest.GetRequestStream())
-                httpRequestWriter.Write(postDataString)
-                httpRequestWriter.Close()
-                httpRequestWriter.Dispose()
-                httpRequestWriter = Nothing
-            End If
+            addParametersToWebRequest(httpWebRequest)
+            addPostDataToWebRequest(httpWebRequest)
 
             Dim httpWebResponse As Net.WebResponse = httpWebRequest.GetResponse()
-
-            If url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) Then
-                sslCertificate = New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate)
-            Else
-                sslCertificate = Nothing
-            End If
+            captureSSLInfo(url, httpWebRequest)
 
             Dim httpInStream As New StreamReader(httpWebResponse.GetResponseStream())
             Dim httpTextOutput As String = httpInStream.ReadToEnd.Trim()
@@ -1197,6 +1125,8 @@ beginAgain:
             httpWebRequest = Nothing
 
             httpResponseText = convertLineFeeds(httpTextOutput).Trim()
+            strLastHTTPServerResponse = httpResponseText
+
             Return True
         Catch ex As Exception
             If TypeOf ex Is Threading.ThreadAbortException Then
@@ -1255,47 +1185,16 @@ beginAgain:
             End If
             lastAccessedURL = url
 
-            If getData.Count <> 0 Then url &= "?" & Me.getGETDataString
+            If getData.Count <> 0 Then url &= "?" & getGETDataString()
 
             httpWebRequest = DirectCast(Net.WebRequest.Create(url), Net.HttpWebRequest)
-            httpWebRequest.Timeout = httpTimeOut
-            httpWebRequest.KeepAlive = True
-
-            If credentials IsNot Nothing Then
-                httpWebRequest.PreAuthenticate = True
-                addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPassword)))
-            End If
-
-            If boolUseHTTPCompression Then httpWebRequest.Accept = "gzip, deflate"
 
             configureProxy(httpWebRequest)
-
-            If strUserAgentString <> Nothing Then httpWebRequest.UserAgent = strUserAgentString
-            If httpCookies.Count <> 0 Then getCookies(httpWebRequest)
-            If additionalHTTPHeaders.Count <> 0 Then getHeaders(httpWebRequest)
-
-            If postData.Count = 0 Then
-                httpWebRequest.Method = "GET"
-            Else
-                httpWebRequest.Method = "POST"
-                Dim postDataString As String = Me.getPOSTDataString
-                httpWebRequest.ContentType = "application/x-www-form-urlencoded"
-                httpWebRequest.ContentLength = postDataString.Length
-
-                Dim httpRequestWriter = New StreamWriter(httpWebRequest.GetRequestStream())
-                httpRequestWriter.Write(postDataString)
-                httpRequestWriter.Close()
-                httpRequestWriter.Dispose()
-                httpRequestWriter = Nothing
-            End If
+            addParametersToWebRequest(httpWebRequest)
+            addPostDataToWebRequest(httpWebRequest)
 
             Dim httpWebResponse As Net.WebResponse = httpWebRequest.GetResponse()
-
-            If url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) Then
-                sslCertificate = New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate)
-            Else
-                sslCertificate = Nothing
-            End If
+            captureSSLInfo(url, httpWebRequest)
 
             Dim httpInStream As New StreamReader(httpWebResponse.GetResponseStream())
             Dim httpTextOutput As String = httpInStream.ReadToEnd.Trim()
@@ -1309,6 +1208,8 @@ beginAgain:
             httpWebRequest = Nothing
 
             httpResponseText = convertLineFeeds(httpTextOutput).Trim()
+            strLastHTTPServerResponse = httpResponseText
+
             Return True
         Catch ex As Exception
             If TypeOf ex Is Threading.ThreadAbortException Then
@@ -1378,25 +1279,13 @@ beginAgain:
             Dim boundaryBytes As Byte() = Text.Encoding.ASCII.GetBytes((Convert.ToString(vbCr & vbLf & "--") & boundary) & vbCr & vbLf)
 
             httpWebRequest = DirectCast(Net.WebRequest.Create(url), Net.HttpWebRequest)
-            httpWebRequest.Timeout = httpTimeOut
-            httpWebRequest.KeepAlive = True
-
-            If credentials IsNot Nothing Then
-                httpWebRequest.PreAuthenticate = True
-                addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPassword)))
-            End If
-
-            If boolUseHTTPCompression Then httpWebRequest.Accept = "gzip, deflate"
 
             configureProxy(httpWebRequest)
+            addParametersToWebRequest(httpWebRequest)
 
             httpWebRequest.KeepAlive = True
             httpWebRequest.ContentType = "multipart/form-data; boundary=" & boundary
             httpWebRequest.Method = "POST"
-
-            If strUserAgentString <> Nothing Then httpWebRequest.UserAgent = strUserAgentString
-            If httpCookies.Count <> 0 Then getCookies(httpWebRequest)
-            If additionalHTTPHeaders.Count <> 0 Then getHeaders(httpWebRequest)
 
             If postData.Count <> 0 Then
                 Dim httpRequestWriter As Stream = httpWebRequest.GetRequestStream()
@@ -1445,12 +1334,7 @@ beginAgain:
             End If
 
             Dim httpWebResponse As Net.WebResponse = httpWebRequest.GetResponse()
-
-            If url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) Then
-                sslCertificate = New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate)
-            Else
-                sslCertificate = Nothing
-            End If
+            captureSSLInfo(url, httpWebRequest)
 
             Dim httpInStream As New StreamReader(httpWebResponse.GetResponseStream())
             Dim httpTextOutput As String = httpInStream.ReadToEnd.Trim()
@@ -1464,6 +1348,7 @@ beginAgain:
             httpWebRequest = Nothing
 
             httpResponseText = convertLineFeeds(httpTextOutput).Trim()
+            strLastHTTPServerResponse = httpResponseText
 
             Return True
         Catch ex As Exception
@@ -1502,6 +1387,52 @@ beginAgain:
             Return False
         End Try
     End Function
+
+    Private Sub captureSSLInfo(ByVal url As String, ByRef httpWebRequest As Net.HttpWebRequest)
+        If url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) Then
+            sslCertificate = New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate)
+        Else
+            sslCertificate = Nothing
+        End If
+    End Sub
+
+    Private Sub addPostDataToWebRequest(ByRef httpWebRequest As Net.HttpWebRequest)
+        If postData.Count = 0 Then
+            httpWebRequest.Method = "GET"
+        Else
+            httpWebRequest.Method = "POST"
+            Dim postDataString As String = getPOSTDataString()
+            httpWebRequest.ContentType = "application/x-www-form-urlencoded"
+            httpWebRequest.ContentLength = postDataString.Length
+
+            Dim httpRequestWriter = New StreamWriter(httpWebRequest.GetRequestStream())
+            httpRequestWriter.Write(postDataString)
+            httpRequestWriter.Close()
+            httpRequestWriter.Dispose()
+            httpRequestWriter = Nothing
+        End If
+    End Sub
+
+    Private Sub addParametersToWebRequest(ByRef httpWebRequest As Net.HttpWebRequest)
+        If credentials IsNot Nothing Then
+            httpWebRequest.AutomaticDecompression = Net.DecompressionMethods.GZip Or Net.DecompressionMethods.Deflate
+            httpWebRequest.PreAuthenticate = True
+            addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPassword)))
+        End If
+
+        If strUserAgentString IsNot Nothing Then httpWebRequest.UserAgent = strUserAgentString
+        If httpCookies.Count <> 0 Then getCookies(httpWebRequest)
+        If additionalHTTPHeaders.Count <> 0 Then getHeaders(httpWebRequest)
+
+        If boolUseHTTPCompression Then
+            ' We tell the web server that we can accept a GZIP and Deflate compressed data stream.
+            httpWebRequest.Accept = "gzip, deflate"
+            httpWebRequest.Headers.Add(Net.HttpRequestHeader.AcceptEncoding, "gzip, deflate")
+        End If
+
+        httpWebRequest.Timeout = httpTimeOut
+        httpWebRequest.KeepAlive = True
+    End Sub
 
     Private Sub getCookies(ByRef httpWebRequest As Net.HttpWebRequest)
         Dim cookieContainer As New Net.CookieContainer
