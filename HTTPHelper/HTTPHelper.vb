@@ -220,7 +220,7 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class httpHelper
-    Private Const classVersion As String = "1.265"
+    Private Const classVersion As String = "1.266"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -1415,7 +1415,6 @@ beginAgain:
 
     Private Sub addParametersToWebRequest(ByRef httpWebRequest As Net.HttpWebRequest)
         If credentials IsNot Nothing Then
-            httpWebRequest.AutomaticDecompression = Net.DecompressionMethods.GZip Or Net.DecompressionMethods.Deflate
             httpWebRequest.PreAuthenticate = True
             addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPassword)))
         End If
@@ -1428,6 +1427,7 @@ beginAgain:
             ' We tell the web server that we can accept a GZIP and Deflate compressed data stream.
             httpWebRequest.Accept = "gzip, deflate"
             httpWebRequest.Headers.Add(Net.HttpRequestHeader.AcceptEncoding, "gzip, deflate")
+            httpWebRequest.AutomaticDecompression = Net.DecompressionMethods.GZip Or Net.DecompressionMethods.Deflate
         End If
 
         httpWebRequest.Timeout = httpTimeOut
