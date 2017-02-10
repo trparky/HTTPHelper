@@ -17,7 +17,7 @@ Public Class Form1
                                                    Return False
                                                End Function
 
-            If httpHelper.getWebData("https://www.toms-world.org/php/phpinfo.php", strServerResponse) = True Then
+            If httpHelper.getWebData("https://www.toms-world.org/php/phpinfo.php", strServerResponse) Then
                 WebBrowser1.DocumentText = strServerResponse
                 TextBox1.Text = httpHelper.getHTTPResponseHeaders(True).ToString
 
@@ -50,7 +50,7 @@ Public Class Form1
             httpHelper.addPOSTData("minor", "9")
             httpHelper.addPOSTData("build", "6")
 
-            If httpHelper.getWebData("https://www.toms-world.org/httphelper.php", strServerResponse) = True Then
+            If httpHelper.getWebData("https://www.toms-world.org/httphelper.php", strServerResponse) Then
                 WebBrowser1.DocumentText = strServerResponse
                 TextBox1.Text = httpHelper.getHTTPResponseHeaders().ToString
 
@@ -120,7 +120,7 @@ Public Class Form1
                                                       btnDownloadFile2.Enabled = False
 
                                                       ' We use the downloadFile() function which first calls for the URL and then the path to a place on the local file system to save it. This function is why we need multithreading, this will take a long time to do.
-                                                      If httpHelper.downloadFile(urlToFileToBeDownloaded, memStream, True) = True Then
+                                                      If httpHelper.downloadFile(urlToFileToBeDownloaded, memStream, True) Then
                                                           Dim fileStream As New IO.FileStream(pathToDownloadFileTo, IO.FileMode.Create)
                                                           memStream.CopyTo(fileStream)
                                                           memStream.Close()
@@ -170,7 +170,7 @@ Public Class Form1
                 httpHelper.addGETData("test3", "value3")
                 httpHelper.addFileUpload("myfileupload", OpenFileDialog.FileName, Nothing, Nothing)
 
-                If httpHelper.uploadData("https://www.toms-world.org/httphelper.php", strServerResponse) = True Then
+                If httpHelper.uploadData("https://www.toms-world.org/httphelper.php", strServerResponse) Then
                     WebBrowser1.DocumentText = strServerResponse
                     TextBox1.Text = httpHelper.getHTTPResponseHeaders().ToString
 
@@ -199,7 +199,7 @@ Public Class Form1
             httpHelper.addHTTPCookie("mycookie", "my cookie contents", "www.toms-world.org", "/")
             httpHelper.addHTTPHeader("myheader", "my header contents")
 
-            If httpHelper.getWebData("https://www.toms-world.org/download/restorepointcreatorchangelog.rtf", strServerResponse) = True Then
+            If httpHelper.getWebData("https://www.toms-world.org/download/restorepointcreatorchangelog.rtf", strServerResponse) Then
                 WebBrowser1.DocumentText = strServerResponse
                 TextBox1.Text = httpHelper.getHTTPResponseHeaders(True).ToString
 
@@ -234,7 +234,7 @@ Public Class Form1
                                                       btnDownloadFile2.Enabled = False
 
                                                       ' We use the downloadFile() function which first calls for the URL and then the path to a place on the local file system to save it. This function is why we need multithreading, this will take a long time to do.
-                                                      If httpHelper.downloadFile(urlToFileToBeDownloaded, memStream, True) = True Then
+                                                      If httpHelper.downloadFile(urlToFileToBeDownloaded, memStream, True) Then
                                                           Dim fileStream As New IO.FileStream(pathToDownloadFileTo, IO.FileMode.Create)
                                                           memStream.CopyTo(fileStream)
                                                           memStream.Close()
