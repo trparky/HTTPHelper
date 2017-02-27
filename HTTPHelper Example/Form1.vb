@@ -1,6 +1,9 @@
 ﻿Imports System.Security.Cryptography.X509Certificates
 
 Public Class Form1
+    Private Const urlToDownload As String = "http://releases.ubuntu.com/16.04.2/ubuntu-16.04.2-desktop-amd64.iso"
+    Private Const localFilePathToDownloadFileTo As String = "S:\ubuntu-16.04.2-desktop-amd64.iso"
+
     Private Sub btnGetWebPageData_Click(sender As Object, e As EventArgs) Handles btnGetWebPageData.Click
         Try
             Dim strServerResponse As String = Nothing
@@ -110,8 +113,8 @@ Public Class Form1
 
         ' Now we need to create our download thread.
         downloadThread = New Threading.Thread(Sub()
-                                                  Dim urlToFileToBeDownloaded As String = "http://releases.ubuntu.com/16.04.1/ubuntu-16.04.1-desktop-amd64.iso"
-                                                  Dim pathToDownloadFileTo As String = "S:\ubuntu-16.04.1-desktop-amd64.iso"
+                                                  Dim urlToFileToBeDownloaded As String = urlToDownload
+                                                  Dim pathToDownloadFileTo As String = localFilePathToDownloadFileTo
                                                   Dim memStream As New IO.MemoryStream
 
                                                   Try
@@ -224,8 +227,8 @@ Public Class Form1
 
         ' Now we need to create our download thread.
         downloadThread = New Threading.Thread(Sub()
-                                                  Dim urlToFileToBeDownloaded As String = "http://releases.ubuntu.com/16.04.1/ubuntu-16.04.1-desktop-amd64.iso"
-                                                  Dim pathToDownloadFileTo As String = "S:\ubuntu-16.04.1-desktop-amd64.iso"
+                                                  Dim urlToFileToBeDownloaded As String = urlToDownload
+                                                  Dim pathToDownloadFileTo As String = localFilePathToDownloadFileTo
                                                   Dim memStream As New IO.MemoryStream
 
                                                   Try
