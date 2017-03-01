@@ -120,6 +120,21 @@ Public Class proxyConfigurationErrorException
     End Sub
 End Class
 
+Public Class dnsLookupError
+    Inherits Exception
+
+    Public Sub New()
+    End Sub
+
+    Public Sub New(message As String)
+        MyBase.New(message)
+    End Sub
+
+    Public Sub New(message As String, inner As Exception)
+        MyBase.New(message, inner)
+    End Sub
+End Class
+
 Public Class noHTTPServerResponseHeadersFoundException
     Inherits Exception
 
@@ -220,7 +235,7 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class httpHelper
-    Private Const classVersion As String = "1.270"
+    Private Const classVersion As String = "1.275"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -855,6 +870,7 @@ beginAgain:
     ''' <exception cref="Exception">If this function throws a general Exception, something really went wrong; something that the function normally doesn't handle.</exception>
     ''' <exception cref="httpProtocolException">This exception is thrown if the server responds with an HTTP Error.</exception>
     ''' <exception cref="sslErrorException">If this function throws an sslErrorException, an error occurred while negotiating an SSL connection.</exception>
+    ''' <exception cref="dnsLookupError">If this function throws a dnsLookupError exception it means that the domain name wasn't able to be resolved properly.</exception>
     Public Function downloadFile(ByVal fileDownloadURL As String, ByRef memStream As MemoryStream, Optional ByVal throwExceptionIfError As Boolean = True) As Boolean
         Dim httpWebRequest As Net.HttpWebRequest = Nothing
         currentFileSize = 0
@@ -947,6 +963,11 @@ beginAgain:
                     lastException = New sslErrorException("There was an error establishing an SSL connection.", ex2)
                     Throw lastException
                     Return False
+                ElseIf ex2.Status = Net.WebExceptionStatus.NameResolutionFailure Then
+                    Dim strDomainName As String = Text.RegularExpressions.Regex.Match(lastAccessedURL, "http://(.*)/", Text.RegularExpressions.RegexOptions.Singleline).Groups(1).Value
+                    lastException = New dnsLookupError(String.Format("There was an error while looking up the DNS records for the domain name {0}{1}{0}.", Chr(34), strDomainName), ex2)
+                    Throw lastException
+                    Return False
                 End If
 
                 lastException = New Net.WebException(ex.Message, ex2)
@@ -968,6 +989,7 @@ beginAgain:
     ''' <exception cref="Exception">If this function throws a general Exception, something really went wrong; something that the function normally doesn't handle.</exception>
     ''' <exception cref="httpProtocolException">This exception is thrown if the server responds with an HTTP Error.</exception>
     ''' <exception cref="sslErrorException">If this function throws an sslErrorException, an error occurred while negotiating an SSL connection.</exception>
+    ''' <exception cref="dnsLookupError">If this function throws a dnsLookupError exception it means that the domain name wasn't able to be resolved properly.</exception>
     Public Function downloadFile(fileDownloadURL As String, localFileName As String, throwExceptionIfLocalFileExists As Boolean, Optional throwExceptionIfError As Boolean = True) As Boolean
         Dim fileWriteStream As FileStream = Nothing
         Dim httpWebRequest As Net.HttpWebRequest = Nothing
@@ -1073,6 +1095,11 @@ beginAgain:
                     lastException = New sslErrorException("There was an error establishing an SSL connection.", ex2)
                     Throw lastException
                     Return False
+                ElseIf ex2.Status = Net.WebExceptionStatus.NameResolutionFailure Then
+                    Dim strDomainName As String = Text.RegularExpressions.Regex.Match(lastAccessedURL, "http://(.*)/", Text.RegularExpressions.RegexOptions.Singleline).Groups(1).Value
+                    lastException = New dnsLookupError(String.Format("There was an error while looking up the DNS records for the domain name {0}{1}{0}.", Chr(34), strDomainName), ex2)
+                    Throw lastException
+                    Return False
                 End If
 
                 lastException = New Net.WebException(ex.Message, ex2)
@@ -1092,6 +1119,7 @@ beginAgain:
     ''' <exception cref="Exception">If this function throws a general Exception, something really went wrong; something that the function normally doesn't handle.</exception>
     ''' <exception cref="httpProtocolException">This exception is thrown if the server responds with an HTTP Error.</exception>
     ''' <exception cref="sslErrorException">If this function throws an sslErrorException, an error occurred while negotiating an SSL connection.</exception>
+    ''' <exception cref="dnsLookupError">If this function throws a dnsLookupError exception it means that the domain name wasn't able to be resolved properly.</exception>
     ''' <example>httpPostObject.getWebData("http://www.myserver.com/mywebpage", httpResponseText)</example>
     ''' <param name="throwExceptionIfError">Normally True. If True this function will throw an exception if an error occurs. If set to False, the function simply returns False if an error occurs; this is a much more simpler way to handle errors.</param>
     ''' <param name="shortRangeTo">This controls how much data is downloaded from the server.</param>
@@ -1157,6 +1185,11 @@ beginAgain:
                     lastException = New sslErrorException("There was an error establishing an SSL connection.", ex2)
                     Throw lastException
                     Return False
+                ElseIf ex2.Status = Net.WebExceptionStatus.NameResolutionFailure Then
+                    Dim strDomainName As String = Text.RegularExpressions.Regex.Match(lastAccessedURL, "http://(.*)/", Text.RegularExpressions.RegexOptions.Singleline).Groups(1).Value
+                    lastException = New dnsLookupError(String.Format("There was an error while looking up the DNS records for the domain name {0}{1}{0}.", Chr(34), strDomainName), ex2)
+                    Throw lastException
+                    Return False
                 End If
 
                 lastException = New Net.WebException(ex.Message, ex2)
@@ -1178,6 +1211,7 @@ beginAgain:
     ''' <exception cref="Exception">If this function throws a general Exception, something really went wrong; something that the function normally doesn't handle.</exception>
     ''' <exception cref="httpProtocolException">This exception is thrown if the server responds with an HTTP Error.</exception>
     ''' <exception cref="sslErrorException">If this function throws an sslErrorException, an error occurred while negotiating an SSL connection.</exception>
+    ''' <exception cref="dnsLookupError">If this function throws a dnsLookupError exception it means that the domain name wasn't able to be resolved properly.</exception>
     ''' <example>httpPostObject.getWebData("http://www.myserver.com/mywebpage", httpResponseText)</example>
     ''' <param name="throwExceptionIfError">Normally True. If True this function will throw an exception if an error occurs. If set to False, the function simply returns False if an error occurs; this is a much more simpler way to handle errors.</param>
     Public Function getWebData(ByVal url As String, ByRef httpResponseText As String, Optional throwExceptionIfError As Boolean = True) As Boolean
@@ -1240,6 +1274,11 @@ beginAgain:
                     lastException = New sslErrorException("There was an error establishing an SSL connection.", ex2)
                     Throw lastException
                     Return False
+                ElseIf ex2.Status = Net.WebExceptionStatus.NameResolutionFailure Then
+                    Dim strDomainName As String = Text.RegularExpressions.Regex.Match(lastAccessedURL, "http://(.*)/", Text.RegularExpressions.RegexOptions.Singleline).Groups(1).Value
+                    lastException = New dnsLookupError(String.Format("There was an error while looking up the DNS records for the domain name {0}{1}{0}.", Chr(34), strDomainName), ex2)
+                    Throw lastException
+                    Return False
                 End If
 
                 lastException = New Net.WebException(ex.Message, ex2)
@@ -1262,6 +1301,7 @@ beginAgain:
     ''' <exception cref="Exception">If this function throws a general Exception, something really went wrong; something that the function normally doesn't handle.</exception>
     ''' <exception cref="httpProtocolException">This exception is thrown if the server responds with an HTTP Error.</exception>
     ''' <exception cref="sslErrorException">If this function throws an sslErrorException, an error occurred while negotiating an SSL connection.</exception>
+    ''' <exception cref="dnsLookupError">If this function throws a dnsLookupError exception it means that the domain name wasn't able to be resolved properly.</exception>
     ''' <example>httpPostObject.uploadData("http://www.myserver.com/myscript", httpResponseText)</example>
     ''' <param name="throwExceptionIfError">Normally True. If True this function will throw an exception if an error occurs. If set to False, the function simply returns False if an error occurs; this is a much more simpler way to handle errors.</param>
     Public Function uploadData(ByVal url As String, ByRef httpResponseText As String, Optional throwExceptionIfError As Boolean = False) As Boolean
@@ -1377,6 +1417,11 @@ beginAgain:
                     Return False
                 ElseIf ex2.Status = Net.WebExceptionStatus.TrustFailure Then
                     lastException = New sslErrorException("There was an error establishing an SSL connection.", ex2)
+                    Throw lastException
+                    Return False
+                ElseIf ex2.Status = Net.WebExceptionStatus.NameResolutionFailure Then
+                    Dim strDomainName As String = Text.RegularExpressions.Regex.Match(lastAccessedURL, "http://(.*)/", Text.RegularExpressions.RegexOptions.Singleline).Groups(1).Value
+                    lastException = New dnsLookupError(String.Format("There was an error while looking up the DNS records for the domain name {0}{1}{0}.", Chr(34), strDomainName), ex2)
                     Throw lastException
                     Return False
                 End If
