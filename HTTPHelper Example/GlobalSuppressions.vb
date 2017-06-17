@@ -5,4 +5,3 @@
 ' a specific target and scoped to a namespace, type, member, etc.
 
 <Assembly: CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles")>
-<Assembly: CodeAnalysis.SuppressMessage("Style", "IDE0017:Simplify object initialization")>
