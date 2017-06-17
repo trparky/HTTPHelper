@@ -14,6 +14,10 @@ Public Class Form1
             httpHelper.addHTTPCookie("mycookie", "my cookie contents", "www.toms-world.org", "/")
             httpHelper.addHTTPHeader("myheader", "my header contents")
             httpHelper.setHTTPCredentials("test", "test")
+            httpHelper.setURLPreProcessor = Function(ByVal strURLInput As String) As String
+                                                Debug.WriteLine("strURLInput = " & strURLInput)
+                                                Return strURLInput
+                                            End Function
 
             httpHelper.setCustomErrorHandler = Function(ex As Exception, classInstance As HTTPHelper.httpHelper)
                                                    MsgBox(ex.Message)
@@ -52,6 +56,10 @@ Public Class Form1
             httpHelper.addPOSTData("major", "3")
             httpHelper.addPOSTData("minor", "9")
             httpHelper.addPOSTData("build", "6")
+            httpHelper.setURLPreProcessor = Function(ByVal strURLInput As String) As String
+                                                Debug.WriteLine("strURLInput = " & strURLInput)
+                                                Return strURLInput
+                                            End Function
 
             If httpHelper.getWebData("https://www.toms-world.org/httphelper.php", strServerResponse) Then
                 WebBrowser1.DocumentText = strServerResponse
