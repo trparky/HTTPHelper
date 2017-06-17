@@ -8,8 +8,7 @@ Public Class Form1
         Try
             Dim strServerResponse As String = Nothing
 
-            Dim httpHelper As New HTTPHelper.httpHelper()
-            httpHelper.setUserAgent = "Microsoft .NET" ' Set our User Agent String.
+            Dim httpHelper As New HTTPHelper.httpHelper() With {.setUserAgent = "Microsoft .NET"} ' Set our User Agent String.
             httpHelper.addGETData("test3", "value3")
             httpHelper.addHTTPCookie("mycookie", "my cookie contents", "www.toms-world.org", "/")
             httpHelper.addHTTPHeader("myheader", "my header contents")
@@ -46,8 +45,7 @@ Public Class Form1
         Try
             Dim strServerResponse As String = Nothing
 
-            Dim httpHelper As New HTTPHelper.httpHelper()
-            httpHelper.setUserAgent = "Microsoft .NET" ' Set our User Agent String.
+            Dim httpHelper As New HTTPHelper.httpHelper() With {.setUserAgent = "Microsoft .NET"} ' Set our User Agent String.
             httpHelper.addHTTPCookie("mycookie", "my cookie contents", "www.toms-world.org", "/")
             httpHelper.addHTTPHeader("myheader", "my header contents")
             httpHelper.addPOSTData("test1", "value1")
@@ -100,9 +98,10 @@ Public Class Form1
 
     Private Sub btnDownloadFile_Click(sender As Object, e As EventArgs) Handles btnDownloadFile.Click
         ' First we create our httpHelper Class instance.
-        Dim httpHelper As New HTTPHelper.httpHelper()
-        httpHelper.setUserAgent = "Microsoft .NET" ' Set our User Agent String.
-        httpHelper.enableMultiThreadedDownloadStatusUpdates = True
+        Dim httpHelper As New HTTPHelper.httpHelper() With {
+            .setUserAgent = "Microsoft .NET", ' Set our User Agent String.
+            .enableMultiThreadedDownloadStatusUpdates = True
+        }
         Dim oldFileSize As ULong = 0
 
         ' Now we set up our download status updating Lambda function that's passed to the Class instance to execute within the memory space of the Class.
@@ -157,8 +156,9 @@ Public Class Form1
                                                       If IO.File.Exists(pathToDownloadFileTo) Then IO.File.Delete(pathToDownloadFileTo)
                                                       MsgBox("Download aborted.") ' And tell the user that the download is aborted.
                                                   End Try
-                                              End Sub)
-        downloadThread.IsBackground = True
+                                              End Sub) With {
+            .IsBackground = True
+        }
         downloadThread.Start() ' Starts our download thread.
     End Sub
 
@@ -171,9 +171,10 @@ Public Class Form1
             If OpenFileDialog.ShowDialog() = DialogResult.OK Then
                 Dim strServerResponse As String = Nothing
 
-                Dim httpHelper As New HTTPHelper.httpHelper()
-                httpHelper.setHTTPTimeout = 10
-                httpHelper.setUserAgent = "Microsoft .NET" ' Set our User Agent String.
+                Dim httpHelper As New HTTPHelper.httpHelper() With {
+                    .setHTTPTimeout = 10,
+                    .setUserAgent = "Microsoft .NET" ' Set our User Agent String.
+                }
                 httpHelper.addHTTPCookie("mycookie", "my cookie contents", "www.toms-world.org", "/")
                 httpHelper.addHTTPHeader("myheader", "my header contents")
                 httpHelper.addPOSTData("test1", "value1")
@@ -204,8 +205,7 @@ Public Class Form1
         Try
             Dim strServerResponse As String = Nothing
 
-            Dim httpHelper As New HTTPHelper.httpHelper()
-            httpHelper.setUserAgent = "Microsoft .NET" ' Set our User Agent String.
+            Dim httpHelper As New HTTPHelper.httpHelper() With {.setUserAgent = "Microsoft .NET"} ' Set our User Agent String.
             httpHelper.addGETData("test3", "value3")
             httpHelper.addHTTPCookie("mycookie", "my cookie contents", "www.toms-world.org", "/")
             httpHelper.addHTTPHeader("myheader", "my header contents")
@@ -230,8 +230,9 @@ Public Class Form1
 
     Private Sub btnDownloadFile2_Click(sender As Object, e As EventArgs) Handles btnDownloadFile2.Click
         ' First we create our httpHelper Class instance.
-        Dim httpHelper As New HTTPHelper.httpHelper()
-        httpHelper.setUserAgent = "Microsoft .NET" ' Set our User Agent String.
+        Dim httpHelper As New HTTPHelper.httpHelper() With {
+            .setUserAgent = "Microsoft .NET" ' Set our User Agent String.
+        }
 
         ' Now we need to create our download thread.
         downloadThread = New Threading.Thread(Sub()
@@ -271,8 +272,9 @@ Public Class Form1
                                                       If IO.File.Exists(pathToDownloadFileTo) Then IO.File.Delete(pathToDownloadFileTo)
                                                       MsgBox("Download aborted.") ' And tell the user that the download is aborted.
                                                   End Try
-                                              End Sub)
-        downloadThread.IsBackground = True
+                                              End Sub) With {
+            .IsBackground = True
+        }
         downloadThread.Start() ' Starts our download thread.
 
         statusThread = New Threading.Thread(Sub()
@@ -292,8 +294,9 @@ startAgain:
 
                                                 Threading.Thread.Sleep(1000)
                                                 GoTo startAgain
-                                            End Sub)
-        statusThread.IsBackground = True
+                                            End Sub) With {
+            .IsBackground = True
+        }
         statusThread.Start()
     End Sub
 End Class

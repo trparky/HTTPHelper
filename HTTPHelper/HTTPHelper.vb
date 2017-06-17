@@ -302,7 +302,10 @@ Public Class httpHelper
     ''' <param name="throwExceptionIfAlreadySet">A Boolean value. This tells the function if it should throw an exception if HTTP Authentication settings have already been set.</param>
     Public Sub setHTTPCredentials(strUsername As String, strPassword As String, Optional throwExceptionIfAlreadySet As Boolean = True)
         If credentials Is Nothing Then
-            credentials = New credentials() With {.strUser = strUsername, .strPassword = strPassword}
+            credentials = New credentials() With {
+                .strUser = strUsername,
+                .strPassword = strPassword
+            }
         Else
             If throwExceptionIfAlreadySet Then Throw New credentialsAlreadySet("HTTP Authentication Credentials have already been set for this HTTPHelper Class Instance.")
         End If
@@ -317,7 +320,9 @@ Public Class httpHelper
     ''' <exception cref="proxyConfigurationErrorException">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
     Public Sub setProxy(strServer As String, intPort As Integer, strUsername As String, strPassword As String, Optional boolByPassOnLocal As Boolean = True)
         Try
-            customProxy = New Net.WebProxy(String.Format("{0}:{1}", strServer, intPort.ToString), boolByPassOnLocal) With {.Credentials = New Net.NetworkCredential(strUsername, strPassword)}
+            customProxy = New Net.WebProxy(String.Format("{0}:{1}", strServer, intPort.ToString), boolByPassOnLocal) With {
+                .Credentials = New Net.NetworkCredential(strUsername, strPassword)
+            }
         Catch ex As UriFormatException
             Throw New proxyConfigurationErrorException("There was an error setting up the proxy for this class instance.", ex)
         End Try
@@ -356,7 +361,9 @@ Public Class httpHelper
     ''' <exception cref="proxyConfigurationErrorException">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
     Public Sub setProxy(strServer As String, strUsername As String, strPassword As String, Optional boolByPassOnLocal As Boolean = True)
         Try
-            customProxy = New Net.WebProxy(strServer, boolByPassOnLocal) With {.Credentials = New Net.NetworkCredential(strUsername, strPassword)}
+            customProxy = New Net.WebProxy(strServer, boolByPassOnLocal) With {
+                .Credentials = New Net.NetworkCredential(strUsername, strPassword)
+            }
         Catch ex As UriFormatException
             Throw New proxyConfigurationErrorException("There was an error setting up the proxy for this class instance.", ex)
         End Try
@@ -652,7 +659,10 @@ Public Class httpHelper
     ''' <exception cref="dataAlreadyExistsException">If this function throws a dataAlreadyExistsException, it means that the cookie already exists in this Class instance.</exception>
     Public Sub addHTTPCookie(strCookieName As String, strCookieValue As String, strDomainDomain As String, strCookiePath As String, Optional urlEncodeHeaderContent As Boolean = False)
         If Not doesCookieExist(strCookieName) Then
-            Dim cookieDetails As New cookieDetails() With {.cookieDomain = strDomainDomain, .cookiePath = strCookiePath}
+            Dim cookieDetails As New cookieDetails() With {
+                .cookieDomain = strDomainDomain,
+                .cookiePath = strCookiePath
+            }
 
             If urlEncodeHeaderContent Then
                 cookieDetails.cookieData = Web.HttpUtility.UrlEncode(strCookieValue)
@@ -675,7 +685,10 @@ Public Class httpHelper
     ''' <exception cref="dataAlreadyExistsException">If this function throws a dataAlreadyExistsException, it means that the cookie already exists in this Class instance.</exception>
     Public Sub addHTTPCookie(strCookieName As String, strCookieValue As String, strCookieDomain As String, Optional urlEncodeHeaderContent As Boolean = False)
         If Not doesCookieExist(strCookieName) Then
-            Dim cookieDetails As New cookieDetails() With {.cookieDomain = strCookieDomain, .cookiePath = "/"}
+            Dim cookieDetails As New cookieDetails() With {
+                .cookieDomain = strCookieDomain,
+                .cookiePath = "/"
+            }
 
             If urlEncodeHeaderContent Then
                 cookieDetails.cookieData = Web.HttpUtility.UrlEncode(strCookieValue)
@@ -743,10 +756,11 @@ Public Class httpHelper
                 Exit Sub
             End If
         Else
-            Dim formFileInstance As New FormFile
-            formFileInstance.formName = strFormName
-            formFileInstance.localFilePath = strLocalFilePath
-            formFileInstance.remoteFileName = strRemoteFileName
+            Dim formFileInstance As New FormFile With {
+                .formName = strFormName,
+                .localFilePath = strLocalFilePath,
+                .remoteFileName = strRemoteFileName
+            }
 
             If strContentType = Nothing Then
                 Dim contentType As String
@@ -830,7 +844,11 @@ beginAgain:
 
     ''' <summary>This subroutine is used by the downloadFile function to update the download status of the file that's being downloaded by the class instance.</summary>
     Private Sub downloadStatusUpdateInvoker()
-        downloadStatusDetails = New downloadStatusDetails With {.remoteFileSize = remoteFileSize, .percentageDownloaded = httpDownloadProgressPercentage, .localFileSize = currentFileSize} ' Update the downloadStatusDetails.
+        downloadStatusDetails = New downloadStatusDetails With {
+            .remoteFileSize = remoteFileSize,
+            .percentageDownloaded = httpDownloadProgressPercentage,
+            .localFileSize = currentFileSize
+        } ' Update the downloadStatusDetails.
 
         ' Checks to see if we have a status update routine to invoke.
         If downloadStatusUpdater IsNot Nothing Then
@@ -838,10 +856,11 @@ beginAgain:
             ' into the class instance by the programmer who's using this class in his/her program.
             If boolRunDownloadStatusUpdatePluginInSeparateThread Then
                 If downloadStatusUpdaterThread Is Nothing Then
-                    downloadStatusUpdaterThread = New Threading.Thread(AddressOf downloadStatusUpdaterThreadSubroutine)
-                    downloadStatusUpdaterThread.IsBackground = True
-                    downloadStatusUpdaterThread.Priority = Threading.ThreadPriority.Lowest
-                    downloadStatusUpdaterThread.Name = "HTTPHelper Class Download Status Updating Thread"
+                    downloadStatusUpdaterThread = New Threading.Thread(AddressOf downloadStatusUpdaterThreadSubroutine) With {
+                        .IsBackground = True,
+                        .Priority = Threading.ThreadPriority.Lowest,
+                        .Name = "HTTPHelper Class Download Status Updating Thread"
+                    }
                     downloadStatusUpdaterThread.Start()
                 End If
             Else
