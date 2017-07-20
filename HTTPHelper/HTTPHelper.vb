@@ -235,7 +235,7 @@ End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class httpHelper
-    Private Const classVersion As String = "1.285"
+    Private Const classVersion As String = "1.295"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -302,10 +302,7 @@ Public Class httpHelper
     ''' <param name="throwExceptionIfAlreadySet">A Boolean value. This tells the function if it should throw an exception if HTTP Authentication settings have already been set.</param>
     Public Sub setHTTPCredentials(strUsername As String, strPassword As String, Optional throwExceptionIfAlreadySet As Boolean = True)
         If credentials Is Nothing Then
-            credentials = New credentials() With {
-                .strUser = strUsername,
-                .strPassword = strPassword
-            }
+            credentials = New credentials() With {.strUser = strUsername, .strPassword = strPassword}
         Else
             If throwExceptionIfAlreadySet Then Throw New credentialsAlreadySet("HTTP Authentication Credentials have already been set for this HTTPHelper Class Instance.")
         End If
@@ -320,9 +317,7 @@ Public Class httpHelper
     ''' <exception cref="proxyConfigurationErrorException">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
     Public Sub setProxy(strServer As String, intPort As Integer, strUsername As String, strPassword As String, Optional boolByPassOnLocal As Boolean = True)
         Try
-            customProxy = New Net.WebProxy(String.Format("{0}:{1}", strServer, intPort.ToString), boolByPassOnLocal) With {
-                .Credentials = New Net.NetworkCredential(strUsername, strPassword)
-            }
+            customProxy = New Net.WebProxy(String.Format("{0}:{1}", strServer, intPort.ToString), boolByPassOnLocal) With {.Credentials = New Net.NetworkCredential(strUsername, strPassword)}
         Catch ex As UriFormatException
             Throw New proxyConfigurationErrorException("There was an error setting up the proxy for this class instance.", ex)
         End Try
@@ -361,9 +356,7 @@ Public Class httpHelper
     ''' <exception cref="proxyConfigurationErrorException">If this function throws a proxyConfigurationError, it means that something went wrong while setting up the proxy configuration for this class instance.</exception>
     Public Sub setProxy(strServer As String, strUsername As String, strPassword As String, Optional boolByPassOnLocal As Boolean = True)
         Try
-            customProxy = New Net.WebProxy(strServer, boolByPassOnLocal) With {
-                .Credentials = New Net.NetworkCredential(strUsername, strPassword)
-            }
+            customProxy = New Net.WebProxy(strServer, boolByPassOnLocal) With {.Credentials = New Net.NetworkCredential(strUsername, strPassword)}
         Catch ex As UriFormatException
             Throw New proxyConfigurationErrorException("There was an error setting up the proxy for this class instance.", ex)
         End Try
@@ -659,10 +652,7 @@ Public Class httpHelper
     ''' <exception cref="dataAlreadyExistsException">If this function throws a dataAlreadyExistsException, it means that the cookie already exists in this Class instance.</exception>
     Public Sub addHTTPCookie(strCookieName As String, strCookieValue As String, strDomainDomain As String, strCookiePath As String, Optional urlEncodeHeaderContent As Boolean = False)
         If Not doesCookieExist(strCookieName) Then
-            Dim cookieDetails As New cookieDetails() With {
-                .cookieDomain = strDomainDomain,
-                .cookiePath = strCookiePath
-            }
+            Dim cookieDetails As New cookieDetails() With {.cookieDomain = strDomainDomain, .cookiePath = strCookiePath}
 
             If urlEncodeHeaderContent Then
                 cookieDetails.cookieData = Web.HttpUtility.UrlEncode(strCookieValue)
@@ -685,10 +675,7 @@ Public Class httpHelper
     ''' <exception cref="dataAlreadyExistsException">If this function throws a dataAlreadyExistsException, it means that the cookie already exists in this Class instance.</exception>
     Public Sub addHTTPCookie(strCookieName As String, strCookieValue As String, strCookieDomain As String, Optional urlEncodeHeaderContent As Boolean = False)
         If Not doesCookieExist(strCookieName) Then
-            Dim cookieDetails As New cookieDetails() With {
-                .cookieDomain = strCookieDomain,
-                .cookiePath = "/"
-            }
+            Dim cookieDetails As New cookieDetails() With {.cookieDomain = strCookieDomain, .cookiePath = "/"}
 
             If urlEncodeHeaderContent Then
                 cookieDetails.cookieData = Web.HttpUtility.UrlEncode(strCookieValue)
@@ -844,11 +831,7 @@ beginAgain:
 
     ''' <summary>This subroutine is used by the downloadFile function to update the download status of the file that's being downloaded by the class instance.</summary>
     Private Sub downloadStatusUpdateInvoker()
-        downloadStatusDetails = New downloadStatusDetails With {
-            .remoteFileSize = remoteFileSize,
-            .percentageDownloaded = httpDownloadProgressPercentage,
-            .localFileSize = currentFileSize
-        } ' Update the downloadStatusDetails.
+        downloadStatusDetails = New downloadStatusDetails With {.remoteFileSize = remoteFileSize, .percentageDownloaded = httpDownloadProgressPercentage, .localFileSize = currentFileSize} ' Update the downloadStatusDetails.
 
         ' Checks to see if we have a status update routine to invoke.
         If downloadStatusUpdater IsNot Nothing Then
@@ -917,7 +900,7 @@ beginAgain:
 
             Dim responseStream As Stream = webResponse.GetResponseStream() ' Gets the response stream.
 
-            Dim lngBytesReadFromInternet As ULong = CType(responseStream.Read(dataBuffer, 0, dataBuffer.Length), ULong) ' Reads some data from the HTTP stream into our data buffer.
+            Dim lngBytesReadFromInternet As ULong = responseStream.Read(dataBuffer, 0, dataBuffer.Length) ' Reads some data from the HTTP stream into our data buffer.
 
             ' We keep looping until all of the data has been downloaded.
             While lngBytesReadFromInternet <> 0
@@ -925,7 +908,7 @@ beginAgain:
                 ' downloaded from the server repeatedly to a variable called "currentFileSize".
                 currentFileSize += lngBytesReadFromInternet
 
-                memStream.Write(dataBuffer, 0, CType(lngBytesReadFromInternet, Integer)) ' Writes the data directly to disk.
+                memStream.Write(dataBuffer, 0, lngBytesReadFromInternet) ' Writes the data directly to disk.
 
                 amountDownloaded = (currentFileSize / remoteFileSize) * 100
                 httpDownloadProgressPercentage = CType(Math.Round(amountDownloaded, 0), Short) ' Update the download percentage value.
@@ -1046,7 +1029,7 @@ beginAgain:
             Dim responseStream As Stream = webResponse.GetResponseStream() ' Gets the response stream.
             fileWriteStream = New FileStream(localFileName, FileMode.Create) ' Creates a file write stream.
 
-            Dim lngBytesReadFromInternet As ULong = CType(responseStream.Read(dataBuffer, 0, dataBuffer.Length), ULong) ' Reads some data from the HTTP stream into our data buffer.
+            Dim lngBytesReadFromInternet As ULong = responseStream.Read(dataBuffer, 0, dataBuffer.Length) ' Reads some data from the HTTP stream into our data buffer.
 
             ' We keep looping until all of the data has been downloaded.
             While lngBytesReadFromInternet <> 0
@@ -1054,7 +1037,7 @@ beginAgain:
                 ' downloaded from the server repeatedly to a variable called "currentFileSize".
                 currentFileSize += lngBytesReadFromInternet
 
-                fileWriteStream.Write(dataBuffer, 0, CType(lngBytesReadFromInternet, Integer)) ' Writes the data directly to disk.
+                fileWriteStream.Write(dataBuffer, 0, lngBytesReadFromInternet) ' Writes the data directly to disk.
 
                 amountDownloaded = (currentFileSize / remoteFileSize) * 100
                 httpDownloadProgressPercentage = CType(Math.Round(amountDownloaded, 0), Short) ' Update the download percentage value.
