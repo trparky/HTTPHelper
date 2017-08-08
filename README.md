@@ -1,29 +1,4 @@
-# README #
+The HTTPHelper is a class written in Microsoft .NET that provides a very easy to use API to make HTTP-related calls all without knowing how any of it all works.
+You can add cookies, custom HTTP headers, GET and POST data, and evne download files and inject your own plugins into the code class instance to provide for real-time file download status updates.
 
-This README would normally document whatever steps are necessary to get your application up and running.
-
-### What is this repository for? ###
-
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
-
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+Oh, and it's open source too!
