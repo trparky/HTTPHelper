@@ -487,7 +487,7 @@ Public Class httpHelper
             stringBuilder.AppendLine("--== Raw Exception Data ==--")
             stringBuilder.AppendLine(lastException.ToString)
 
-            If TypeOf lastException Is Net.WebException Then
+            If lastException.GetType.Equals(GetType(Net.WebException)) Then
                 stringBuilder.AppendLine("Raw Exception Status Code: " & DirectCast(lastException, Net.WebException).Status.ToString)
             End If
         End If
@@ -952,7 +952,7 @@ beginAgain:
                 Return False
             End If
 
-            If TypeOf ex Is Net.WebException Then
+            If ex.GetType.Equals(GetType(Net.WebException)) Then
                 Dim ex2 As Net.WebException = DirectCast(ex, Net.WebException)
 
                 If ex2.Status = Net.WebExceptionStatus.ProtocolError Then
@@ -1081,7 +1081,7 @@ beginAgain:
                 Return False
             End If
 
-            If TypeOf ex Is Net.WebException Then
+            If ex.GetType.Equals(GetType(Net.WebException)) Then
                 Dim ex2 As Net.WebException = DirectCast(ex, Net.WebException)
 
                 If ex2.Status = Net.WebExceptionStatus.ProtocolError Then
@@ -1155,7 +1155,7 @@ beginAgain:
 
             Return True
         Catch ex As Exception
-            If TypeOf ex Is Threading.ThreadAbortException Then
+            If ex.GetType.Equals(GetType(Threading.ThreadAbortException)) Then
                 If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
                 Return False
             End If
@@ -1169,7 +1169,7 @@ beginAgain:
                 Return False
             End If
 
-            If TypeOf ex Is Net.WebException Then
+            If ex.GetType.Equals(GetType(Net.WebException)) Then
                 Dim ex2 As Net.WebException = DirectCast(ex, Net.WebException)
 
                 If ex2.Status = Net.WebExceptionStatus.ProtocolError Then
@@ -1242,7 +1242,7 @@ beginAgain:
 
             Return True
         Catch ex As Exception
-            If TypeOf ex Is Threading.ThreadAbortException Then
+            If ex.GetType.Equals(GetType(Threading.ThreadAbortException)) Then
                 If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
                 Return False
             End If
@@ -1256,7 +1256,7 @@ beginAgain:
                 Return False
             End If
 
-            If TypeOf ex Is Net.WebException Then
+            If ex.GetType.Equals(GetType(Net.WebException)) Then
                 Dim ex2 As Net.WebException = DirectCast(ex, Net.WebException)
 
                 If ex2.Status = Net.WebExceptionStatus.ProtocolError Then
@@ -1329,7 +1329,7 @@ beginAgain:
                 For Each entry As KeyValuePair(Of String, Object) In postData
                     httpRequestWriter.Write(boundaryBytes, 0, boundaryBytes.Length)
 
-                    If TypeOf entry.Value Is FormFile Then
+                    If entry.Value.GetType.Equals(GetType(FormFile)) Then
                         formFileObjectInstance = DirectCast(entry.Value, FormFile)
 
                         If String.IsNullOrEmpty(formFileObjectInstance.remoteFileName) Then
@@ -1386,7 +1386,7 @@ beginAgain:
 
             Return True
         Catch ex As Exception
-            If TypeOf ex Is Threading.ThreadAbortException Then
+            If ex.GetType.Equals(GetType(Threading.ThreadAbortException)) Then
                 If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
             End If
 
@@ -1399,7 +1399,7 @@ beginAgain:
                 Return False
             End If
 
-            If TypeOf ex Is Net.WebException Then
+            If ex.GetType.Equals(GetType(Net.WebException)) Then
                 Dim ex2 As Net.WebException = DirectCast(ex, Net.WebException)
 
                 If ex2.Status = Net.WebExceptionStatus.ProtocolError Then
