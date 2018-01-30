@@ -1107,7 +1107,7 @@ beginAgain:
             If urlPreProcessor IsNot Nothing Then url = urlPreProcessor(url)
             lastAccessedURL = url
 
-            If getData.Count <> 0 Then url &= "?" & Me.getGETDataString
+            If getData.Count <> 0 Then url &= "?" & getGETDataString()
 
             httpWebRequest = DirectCast(Net.WebRequest.Create(url), Net.HttpWebRequest)
             httpWebRequest.AddRange(shortRangeFrom, shortRangeTo)
