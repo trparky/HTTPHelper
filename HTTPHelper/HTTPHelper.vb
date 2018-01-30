@@ -230,7 +230,7 @@ Public Class downloadStatusDetails
 End Class
 
 Class credentials
-    Public strUser, strPassword As String
+    Public strUser, strPasswordInput As String
 End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
@@ -243,7 +243,7 @@ Public Class httpHelper
     Private customProxy As Net.IWebProxy = Nothing
     Private httpResponseHeaders As Net.WebHeaderCollection = Nothing
     Private httpDownloadProgressPercentage As Short = 0
-    Private remoteFileSize, currentFileSize As ULong
+    Private remoteFileSizeInput, currentFileSize As ULong
     Private httpTimeOut As Long = 5000
     Private boolUseHTTPCompression As Boolean = True
     Private lastAccessedURL As String = Nothing
@@ -297,12 +297,12 @@ Public Class httpHelper
     End Property
 
     ''' <summary>Adds HTTP Authentication headers to your HTTP Request in this HTTPHelper instance.</summary>
-    ''' <param name="strUsername">The username you want to pass to the server.</param>
+    ''' <param name="strUsernameInput">The username you want to pass to the server.</param>
     ''' <param name="strPassword">The password you want to pass to the server.</param>
     ''' <param name="throwExceptionIfAlreadySet">A Boolean value. This tells the function if it should throw an exception if HTTP Authentication settings have already been set.</param>
-    Public Sub setHTTPCredentials(strUsername As String, strPassword As String, Optional throwExceptionIfAlreadySet As Boolean = True)
+    Public Sub setHTTPCredentials(strUsernameInput As String, strPassword As String, Optional throwExceptionIfAlreadySet As Boolean = True)
         If credentials Is Nothing Then
-            credentials = New credentials() With {.strUser = strUsername, .strPassword = strPassword}
+            credentials = New credentials() With {.strUser = strUsernameInput, .strPasswordInput = strPassword}
         Else
             If throwExceptionIfAlreadySet Then Throw New credentialsAlreadySet("HTTP Authentication Credentials have already been set for this HTTPHelper Class Instance.")
         End If
@@ -408,7 +408,7 @@ Public Class httpHelper
         postData.Clear()
         getData.Clear()
 
-        remoteFileSize = 0
+        remoteFileSizeInput = 0
         currentFileSize = 0
 
         sslCertificate = Nothing
@@ -479,7 +479,7 @@ Public Class httpHelper
             stringBuilder.AppendLine("HTTP Authentication Enabled: False")
         Else
             stringBuilder.AppendLine("HTTP Authentication Enabled: True")
-            stringBuilder.AppendLine("HTTP Authentication Details: " & credentials.strUser & "|" & credentials.strPassword)
+            stringBuilder.AppendLine("HTTP Authentication Details: " & credentials.strUser & "|" & credentials.strPasswordInput)
         End If
 
         If lastException IsNot Nothing Then
@@ -500,9 +500,9 @@ Public Class httpHelper
     ''' <returns>Either a String or a Long containing the remote file size.</returns>
     Public Function getHTTPDownloadRemoteFileSize(Optional boolHumanReadable As Boolean = True) As Object
         If boolHumanReadable Then
-            Return fileSizeToHumanReadableFormat(remoteFileSize)
+            Return fileSizeToHumanReadableFormat(remoteFileSizeInput)
         Else
-            Return remoteFileSize
+            Return remoteFileSizeInput
         End If
     End Function
 
@@ -831,7 +831,7 @@ beginAgain:
 
     ''' <summary>This subroutine is used by the downloadFile function to update the download status of the file that's being downloaded by the class instance.</summary>
     Private Sub downloadStatusUpdateInvoker()
-        downloadStatusDetails = New downloadStatusDetails With {.remoteFileSize = remoteFileSize, .percentageDownloaded = httpDownloadProgressPercentage, .localFileSize = currentFileSize} ' Update the downloadStatusDetails.
+        downloadStatusDetails = New downloadStatusDetails With {.remoteFileSize = remoteFileSizeInput, .percentageDownloaded = httpDownloadProgressPercentage, .localFileSize = currentFileSize} ' Update the downloadStatusDetails.
 
         ' Checks to see if we have a status update routine to invoke.
         If downloadStatusUpdater IsNot Nothing Then
@@ -896,7 +896,7 @@ beginAgain:
             captureSSLInfo(fileDownloadURL, httpWebRequest)
 
             ' Gets the size of the remote file on the web server.
-            remoteFileSize = CType(webResponse.ContentLength, ULong)
+            remoteFileSizeInput = CType(webResponse.ContentLength, ULong)
 
             Dim responseStream As Stream = webResponse.GetResponseStream() ' Gets the response stream.
 
@@ -910,7 +910,7 @@ beginAgain:
 
                 memStream.Write(dataBuffer, 0, lngBytesReadFromInternet) ' Writes the data directly to disk.
 
-                amountDownloaded = (currentFileSize / remoteFileSize) * 100
+                amountDownloaded = (currentFileSize / remoteFileSizeInput) * 100
                 httpDownloadProgressPercentage = CType(Math.Round(amountDownloaded, 0), Short) ' Update the download percentage value.
                 downloadStatusUpdateInvoker()
 
@@ -1024,7 +1024,7 @@ beginAgain:
             captureSSLInfo(fileDownloadURL, httpWebRequest)
 
             ' Gets the size of the remote file on the web server.
-            remoteFileSize = CType(webResponse.ContentLength, ULong)
+            remoteFileSizeInput = CType(webResponse.ContentLength, ULong)
 
             Dim responseStream As Stream = webResponse.GetResponseStream() ' Gets the response stream.
             fileWriteStream = New FileStream(localFileName, FileMode.Create) ' Creates a file write stream.
@@ -1039,7 +1039,7 @@ beginAgain:
 
                 fileWriteStream.Write(dataBuffer, 0, lngBytesReadFromInternet) ' Writes the data directly to disk.
 
-                amountDownloaded = (currentFileSize / remoteFileSize) * 100
+                amountDownloaded = (currentFileSize / remoteFileSizeInput) * 100
                 httpDownloadProgressPercentage = CType(Math.Round(amountDownloaded, 0), Short) ' Update the download percentage value.
                 downloadStatusUpdateInvoker()
 
@@ -1465,7 +1465,7 @@ beginAgain:
     Private Sub addParametersToWebRequest(ByRef httpWebRequest As Net.HttpWebRequest)
         If credentials IsNot Nothing Then
             httpWebRequest.PreAuthenticate = True
-            addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPassword)))
+            addHTTPHeader("Authorization", "Basic " & Convert.ToBase64String(Text.Encoding.Default.GetBytes(credentials.strUser & ":" & credentials.strPasswordInput)))
         End If
 
         If strUserAgentString IsNot Nothing Then httpWebRequest.UserAgent = strUserAgentString
