@@ -499,11 +499,7 @@ Public Class httpHelper
     ''' <param name="boolHumanReadable">Optional setting, normally set to True. Tells the function if it should transform the Integer representing the file size into a human readable format.</param>
     ''' <returns>Either a String or a Long containing the remote file size.</returns>
     Public Function getHTTPDownloadRemoteFileSize(Optional boolHumanReadable As Boolean = True) As Object
-        If boolHumanReadable Then
-            Return fileSizeToHumanReadableFormat(remoteFileSizeInput)
-        Else
-            Return remoteFileSizeInput
-        End If
+        Return If(boolHumanReadable, fileSizeToHumanReadableFormat(remoteFileSizeInput), remoteFileSizeInput)
     End Function
 
     ''' <summary>This returns the SSL certificate details for the last HTTP request made by this Class instance.</summary>
@@ -632,11 +628,7 @@ Public Class httpHelper
     ''' <exception cref="dataAlreadyExistsException">If this function throws an dataAlreadyExistsException, it means that this Class instance already has an Additional HTTP Header of that name in the Class instance.</exception>
     Public Sub addHTTPHeader(strHeaderName As String, strHeaderContents As String, Optional urlEncodeHeaderContent As Boolean = False)
         If Not doesAdditionalHeaderExist(strHeaderName) Then
-            If urlEncodeHeaderContent Then
-                additionalHTTPHeaders.Add(strHeaderName.ToLower, Web.HttpUtility.UrlEncode(strHeaderContents))
-            Else
-                additionalHTTPHeaders.Add(strHeaderName.ToLower, strHeaderContents)
-            End If
+            additionalHTTPHeaders.Add(strHeaderName.ToLower, If(urlEncodeHeaderContent, Web.HttpUtility.UrlEncode(strHeaderContents), strHeaderContents))
         Else
             lastException = New dataAlreadyExistsException(String.Format("The additional HTTP Header named {0}{1}{0} already exists in the Additional HTTP Headers settings for this Class instance.", Chr(34), strHeaderName))
             Throw lastException
@@ -653,13 +645,7 @@ Public Class httpHelper
     Public Sub addHTTPCookie(strCookieName As String, strCookieValue As String, strDomainDomain As String, strCookiePath As String, Optional urlEncodeHeaderContent As Boolean = False)
         If Not doesCookieExist(strCookieName) Then
             Dim cookieDetails As New cookieDetails() With {.cookieDomain = strDomainDomain, .cookiePath = strCookiePath}
-
-            If urlEncodeHeaderContent Then
-                cookieDetails.cookieData = Web.HttpUtility.UrlEncode(strCookieValue)
-            Else
-                cookieDetails.cookieData = strCookieValue
-            End If
-
+            cookieDetails.cookieData = If(urlEncodeHeaderContent, Web.HttpUtility.UrlEncode(strCookieValue), strCookieValue)
             httpCookies.Add(strCookieName.ToLower, cookieDetails)
         Else
             lastException = New dataAlreadyExistsException(String.Format("The HTTP Cookie named {0}{1}{0} already exists in the settings for this Class instance.", Chr(34), strCookieName))
@@ -676,13 +662,7 @@ Public Class httpHelper
     Public Sub addHTTPCookie(strCookieName As String, strCookieValue As String, strCookieDomain As String, Optional urlEncodeHeaderContent As Boolean = False)
         If Not doesCookieExist(strCookieName) Then
             Dim cookieDetails As New cookieDetails() With {.cookieDomain = strCookieDomain, .cookiePath = "/"}
-
-            If urlEncodeHeaderContent Then
-                cookieDetails.cookieData = Web.HttpUtility.UrlEncode(strCookieValue)
-            Else
-                cookieDetails.cookieData = strCookieValue
-            End If
-
+            cookieDetails.cookieData = If(urlEncodeHeaderContent, Web.HttpUtility.UrlEncode(strCookieValue), strCookieValue)
             httpCookies.Add(strCookieName.ToLower, cookieDetails)
         Else
             lastException = New dataAlreadyExistsException(String.Format("The HTTP Cookie named {0}{1}{0} already exists in the settings for this Class instance.", Chr(34), strCookieName))
@@ -1428,11 +1408,7 @@ beginAgain:
     End Function
 
     Private Sub captureSSLInfo(ByVal url As String, ByRef httpWebRequest As Net.HttpWebRequest)
-        If url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) Then
-            sslCertificate = New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate)
-        Else
-            sslCertificate = Nothing
-        End If
+        sslCertificate = If(url.StartsWith("https://", StringComparison.OrdinalIgnoreCase), New X509Certificates.X509Certificate2(httpWebRequest.ServicePoint.Certificate), Nothing)
     End Sub
 
     Private Sub addPostDataToWebRequest(ByRef httpWebRequest As Net.HttpWebRequest)
@@ -1492,11 +1468,7 @@ beginAgain:
             If boolUseSystemProxy Then
                 httpWebRequest.Proxy = Net.WebRequest.GetSystemWebProxy()
             Else
-                If customProxy Is Nothing Then
-                    httpWebRequest.Proxy = Net.WebRequest.GetSystemWebProxy()
-                Else
-                    httpWebRequest.Proxy = customProxy
-                End If
+                httpWebRequest.Proxy = If(customProxy, Net.WebRequest.GetSystemWebProxy())
             End If
         End If
     End Sub
@@ -1518,9 +1490,7 @@ beginAgain:
             End If
         Next
 
-        If postDataString.EndsWith("&") Then
-            postDataString = postDataString.Substring(0, postDataString.Length - 1)
-        End If
+        If postDataString.EndsWith("&") Then postDataString = postDataString.Substring(0, postDataString.Length - 1)
 
         Return postDataString
     End Function
@@ -1531,9 +1501,7 @@ beginAgain:
             getDataString &= entry.Key.Trim & "=" & Web.HttpUtility.UrlEncode(entry.Value.Trim) & "&"
         Next
 
-        If getDataString.EndsWith("&") Then
-            getDataString = getDataString.Substring(0, getDataString.Length - 1)
-        End If
+        If getDataString.EndsWith("&") Then getDataString = getDataString.Substring(0, getDataString.Length - 1)
 
         Return getDataString
     End Function
