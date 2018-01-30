@@ -879,9 +879,7 @@ beginAgain:
         Dim amountDownloaded As Double
 
         Try
-            If urlPreProcessor IsNot Nothing Then
-                fileDownloadURL = urlPreProcessor(fileDownloadURL)
-            End If
+            If urlPreProcessor IsNot Nothing Then fileDownloadURL = urlPreProcessor(fileDownloadURL)
             lastAccessedURL = fileDownloadURL
 
             ' We create a new data buffer to hold the stream of data from the web server.
@@ -998,9 +996,7 @@ beginAgain:
         Dim amountDownloaded As Double
 
         Try
-            If urlPreProcessor IsNot Nothing Then
-                fileDownloadURL = urlPreProcessor(fileDownloadURL)
-            End If
+            If urlPreProcessor IsNot Nothing Then fileDownloadURL = urlPreProcessor(fileDownloadURL)
             lastAccessedURL = fileDownloadURL
 
             If File.Exists(localFileName) Then
@@ -1128,9 +1124,7 @@ beginAgain:
         Dim httpWebRequest As Net.HttpWebRequest = Nothing
 
         Try
-            If urlPreProcessor IsNot Nothing Then
-                url = urlPreProcessor(url)
-            End If
+            If urlPreProcessor IsNot Nothing Then url = urlPreProcessor(url)
             lastAccessedURL = url
 
             If getData.Count <> 0 Then url &= "?" & Me.getGETDataString
@@ -1218,9 +1212,7 @@ beginAgain:
         Dim httpWebRequest As Net.HttpWebRequest = Nothing
 
         Try
-            If urlPreProcessor IsNot Nothing Then
-                url = urlPreProcessor(url)
-            End If
+            If urlPreProcessor IsNot Nothing Then url = urlPreProcessor(url)
             lastAccessedURL = url
 
             If getData.Count <> 0 Then url &= "?" & getGETDataString()
@@ -1308,9 +1300,7 @@ beginAgain:
         Dim httpWebRequest As Net.HttpWebRequest = Nothing
 
         Try
-            If urlPreProcessor IsNot Nothing Then
-                url = urlPreProcessor(url)
-            End If
+            If urlPreProcessor IsNot Nothing Then url = urlPreProcessor(url)
             lastAccessedURL = url
 
             If postData.Count = 0 Then
