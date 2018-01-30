@@ -1598,12 +1598,7 @@ beginAgain:
     Private Function doWeHaveAnInternetConnection() As Boolean
         Try
             Dim ping As New Net.NetworkInformation.Ping()
-
-            If ping.Send("8.8.8.8").Status = Net.NetworkInformation.IPStatus.Success Then
-                Return True
-            Else
-                Return False
-            End If
+            Return If(ping.Send("8.8.8.8").Status = Net.NetworkInformation.IPStatus.Success, True, False)
         Catch ex As Exception
             Return False
         End Try
