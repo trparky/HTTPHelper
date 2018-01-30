@@ -1307,7 +1307,7 @@ beginAgain:
                 lastException = New dataMissingException("Your HTTP Request contains no POST data. Please add some data to POST before calling this function.")
                 Throw lastException
             End If
-            If getData.Count <> 0 Then url &= "?" & Me.getGETDataString()
+            If getData.Count <> 0 Then url &= "?" & getGETDataString()
 
             Dim boundary As String = "---------------------------" & Now.Ticks.ToString("x")
             Dim boundaryBytes As Byte() = Text.Encoding.ASCII.GetBytes((Convert.ToString(vbCr & vbLf & "--") & boundary) & vbCr & vbLf)
