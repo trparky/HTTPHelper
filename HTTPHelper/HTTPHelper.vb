@@ -234,8 +234,9 @@ Class credentials
 End Class
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
+<CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")>
 Public Class httpHelper
-    Private Const classVersion As String = "1.304"
+    Private Const classVersion As String = "1.305"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -914,6 +915,7 @@ beginAgain:
                 memStream.Dispose() ' Disposes the file stream.
             End If
 
+            If memStream IsNot Nothing Then memStream.Dispose() ' Disposes the file stream.
             Return False
         Catch ex As Exception
             abortDownloadStatusUpdaterThread()
@@ -923,6 +925,7 @@ beginAgain:
                 memStream.Close() ' Closes the file stream.
                 memStream.Dispose() ' Disposes the file stream.
             End If
+            If memStream IsNot Nothing Then memStream.Dispose() ' Disposes the file stream.
 
             If Not throwExceptionIfError Then Return False
 
@@ -969,6 +972,7 @@ beginAgain:
     ''' <exception cref="httpProtocolException">This exception is thrown if the server responds with an HTTP Error.</exception>
     ''' <exception cref="sslErrorException">If this function throws an sslErrorException, an error occurred while negotiating an SSL connection.</exception>
     ''' <exception cref="dnsLookupError">If this function throws a dnsLookupError exception it means that the domain name wasn't able to be resolved properly.</exception>
+    <CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")>
     Public Function downloadFile(fileDownloadURL As String, localFileName As String, throwExceptionIfLocalFileExists As Boolean, Optional throwExceptionIfError As Boolean = True) As Boolean
         Dim fileWriteStream As FileStream = Nothing
         Dim httpWebRequest As Net.HttpWebRequest = Nothing
@@ -1043,6 +1047,7 @@ beginAgain:
                 fileWriteStream.Dispose() ' Disposes the file stream.
             End If
 
+            If fileWriteStream IsNot Nothing Then fileWriteStream.Dispose() ' Disposes the file stream.
             Return False
         Catch ex As Exception
             abortDownloadStatusUpdaterThread()
@@ -1052,6 +1057,7 @@ beginAgain:
                 fileWriteStream.Close() ' Closes the file stream.
                 fileWriteStream.Dispose() ' Disposes the file stream.
             End If
+            If fileWriteStream IsNot Nothing Then fileWriteStream.Dispose() ' Disposes the file stream.
 
             If Not throwExceptionIfError Then Return False
 
@@ -1127,6 +1133,7 @@ beginAgain:
             httpInStream.Dispose()
 
             httpWebResponse.Close()
+            httpWebResponse.Dispose()
             httpWebResponse = Nothing
             httpWebRequest = Nothing
 
@@ -1214,6 +1221,7 @@ beginAgain:
             httpInStream.Dispose()
 
             httpWebResponse.Close()
+            httpWebResponse.Dispose()
             httpWebResponse = Nothing
             httpWebRequest = Nothing
 
@@ -1345,6 +1353,7 @@ beginAgain:
                 Dim trailer As Byte() = Text.Encoding.ASCII.GetBytes(vbCrLf & "--" & boundary & "--" & vbCrLf)
                 httpRequestWriter.Write(trailer, 0, trailer.Length)
                 httpRequestWriter.Close()
+                httpRequestWriter.Dispose()
             End If
 
             Dim httpWebResponse As Net.WebResponse = httpWebRequest.GetResponse()
@@ -1358,6 +1367,7 @@ beginAgain:
             httpInStream.Dispose()
 
             httpWebResponse.Close()
+            httpWebResponse.Dispose()
             httpWebResponse = Nothing
             httpWebRequest = Nothing
 
