@@ -11,7 +11,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyTitle("Tom's HTTPHelper")>
 <Assembly: AssemblyDescription("An HTTP Helper Library that allows you to do many HTTP-related stuff but without all of the hassle of writing your own code to do it.")>
 <Assembly: AssemblyCompany("")>
-<Assembly: AssemblyProduct("Tom's HTTPHelper (Requires Microsoft .NET 4.0)")>
+<Assembly: AssemblyProduct("Tom's HTTPHelper (Requires Microsoft .NET 4.6)")>
 <Assembly: AssemblyCopyright("Copyright © Thomas R. Parkison 2016 - 2020")>
 <Assembly: AssemblyTrademark("")> 
 
