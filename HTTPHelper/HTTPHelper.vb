@@ -219,7 +219,6 @@ Public Class httpHelper
     Private downloadStatusUpdaterThread As Threading.Thread = Nothing
     Private _intDownloadThreadSleepTime As Integer = 1000
     Private intDownloadBufferSize As Integer = 8191 ' The default is 8192 bytes or 8 KBs.
-    Private strLastHTTPServerResponse As String
 
     Private additionalHTTPHeaders As New Dictionary(Of String, String)
     Private httpCookies As New Dictionary(Of String, cookieDetails)
@@ -383,7 +382,6 @@ Public Class httpHelper
         customErrorHandler = Nothing
         downloadStatusUpdater = Nothing
         httpResponseHeaders = Nothing
-        strLastHTTPServerResponse = Nothing
     End Sub
 
     ''' <summary>Returns the last accessed URL by this Class instance.</summary>
@@ -1104,7 +1102,6 @@ beginAgain:
             httpWebRequest = Nothing
 
             httpResponseText = convertLineFeeds(httpTextOutput).Trim()
-            strLastHTTPServerResponse = httpResponseText
 
             Return True
         Catch ex As Exception
@@ -1192,7 +1189,6 @@ beginAgain:
             httpWebRequest = Nothing
 
             httpResponseText = convertLineFeeds(httpTextOutput).Trim()
-            strLastHTTPServerResponse = httpResponseText
 
             Return True
         Catch ex As Exception
@@ -1338,7 +1334,6 @@ beginAgain:
             httpWebRequest = Nothing
 
             httpResponseText = convertLineFeeds(httpTextOutput).Trim()
-            strLastHTTPServerResponse = httpResponseText
 
             Return True
         Catch ex As Exception
