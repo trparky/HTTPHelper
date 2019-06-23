@@ -220,10 +220,12 @@ Public Class httpHelper
     Private _intDownloadThreadSleepTime As Integer = 1000
     Private intDownloadBufferSize As Integer = 8191 ' The default is 8192 bytes or 8 KBs.
 
+#Disable Warning IDE0044 ' Add readonly modifier
     Private additionalHTTPHeaders As New Dictionary(Of String, String)
     Private httpCookies As New Dictionary(Of String, cookieDetails)
     Private postData As New Dictionary(Of String, Object)
     Private getData As New Dictionary(Of String, String)
+#Enable Warning IDE0044 ' Add readonly modifier
     Private downloadStatusDetails As downloadStatusDetails
     Private credentials As credentials
 
