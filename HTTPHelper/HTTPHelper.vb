@@ -229,6 +229,10 @@ Public Class HttpHelper
     Private sslCertificate As X509Certificates.X509Certificate2
     Private urlPreProcessor As Func(Of String, String)
     Private customErrorHandler As [Delegate]
+
+    Private Const strLF As String = vbLf
+    Private Const strCRLF As String = vbCrLf
+
     Private downloadStatusUpdater As [Delegate]
 
     ''' <summary>Retrieves the downloadStatusDetails data from within the Class instance.</summary>
@@ -1234,7 +1238,7 @@ beginAgain:
             If getData.Count <> 0 Then url &= "?" & GetGETDataString()
 
             Dim boundary As String = "---------------------------" & Now.Ticks.ToString("x")
-            Dim boundaryBytes As Byte() = Text.Encoding.ASCII.GetBytes((Convert.ToString(vbCr & vbLf & "--") & boundary) & vbCr & vbLf)
+            Dim boundaryBytes As Byte() = Text.Encoding.ASCII.GetBytes((Convert.ToString(strCRLF & "--") & boundary) & strCRLF)
 
             httpWebRequest = DirectCast(Net.WebRequest.Create(url), Net.HttpWebRequest)
 
@@ -1415,7 +1419,7 @@ beginAgain:
         If input.Contains(vbCrLf) Then
             Return input ' It's in Windows linefeed format so we return the output as is.
         Else
-            Return input.Replace(vbLf, vbCrLf) ' It's in UNIX linefeed format so we have to convert it to Windows before we return the output.
+            Return input.Replace(strLF, strCRLF) ' It's in UNIX linefeed format so we have to convert it to Windows before we return the output.
         End If
     End Function
 
