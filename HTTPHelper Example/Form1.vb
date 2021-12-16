@@ -19,7 +19,7 @@ Public Class Form1
                                             End Function
 
             httpHelper.setCustomErrorHandler = Function(ex As Exception, classInstance As HTTPHelper.httpHelper)
-                                                   MsgBox(ex.Message)
+                                                   MessageBox.Show(ex.Message)
                                                    Return False
                                                End Function
 
@@ -37,7 +37,7 @@ Public Class Form1
         Catch ex As Net.WebException
             ' You can handle web exceptions different than normal exceptions with this code.
         Catch ex As Exception
-            MsgBox(ex.Message & " " & ex.StackTrace)
+            MessageBox.Show(ex.Message & " " & ex.StackTrace)
         End Try
     End Sub
 
@@ -69,11 +69,11 @@ Public Class Form1
                 End If
 
                 'For Each strHeaderName As String In httpHelper.getHTTPResponseHeaders
-                '    MsgBox(strHeaderName & " = " & httpHelper.getHTTPResponseHeaders.Item(strHeaderName))
+                '    MessageBox.Show(strHeaderName & " = " & httpHelper.getHTTPResponseHeaders.Item(strHeaderName))
                 'Next
             End If
         Catch ex As Net.WebException
-            MsgBox(ex.Message & " " & ex.StackTrace)
+            MessageBox.Show(ex.Message & " " & ex.StackTrace)
         End Try
     End Sub
 
@@ -140,21 +140,21 @@ Public Class Form1
 
                                                           btnDownloadFile.Enabled = True
                                                           btnStopDownload.Enabled = False
-                                                          MsgBox("Download complete.") ' And tell the user that the download is complete.
+                                                          MessageBox.Show("Download complete.") ' And tell the user that the download is complete.
                                                       End If
 
                                                   Catch ex As Net.WebException
                                                       btnDownloadFile.Enabled = True
                                                       btnDownloadFile2.Enabled = True
                                                       btnStopDownload.Enabled = False
-                                                      MsgBox(ex.Message & " " & ex.StackTrace)
+                                                      MessageBox.Show(ex.Message & " " & ex.StackTrace)
                                                   Catch ex As Threading.ThreadAbortException
 
                                                       btnDownloadFile.Enabled = True
                                                       btnDownloadFile2.Enabled = True
                                                       btnStopDownload.Enabled = False
                                                       If IO.File.Exists(pathToDownloadFileTo) Then IO.File.Delete(pathToDownloadFileTo)
-                                                      MsgBox("Download aborted.") ' And tell the user that the download is aborted.
+                                                      MessageBox.Show("Download aborted.") ' And tell the user that the download is aborted.
                                                   End Try
                                               End Sub) With {
             .IsBackground = True
@@ -193,7 +193,7 @@ Public Class Form1
                 End If
             End If
         Catch ex As Net.WebException
-            MsgBox(ex.Message & " " & ex.StackTrace)
+            MessageBox.Show(ex.Message & " " & ex.StackTrace)
         End Try
     End Sub
 
@@ -224,7 +224,7 @@ Public Class Form1
         Catch ex As Net.WebException
             ' You can handle web exceptions different than normal exceptions with this code.
         Catch ex As Exception
-            MsgBox(ex.Message & " " & ex.StackTrace)
+            MessageBox.Show(ex.Message & " " & ex.StackTrace)
         End Try
     End Sub
 
@@ -256,21 +256,21 @@ Public Class Form1
 
                                                           btnDownloadFile.Enabled = True
                                                           btnStopDownload.Enabled = False
-                                                          MsgBox("Download complete.") ' And tell the user that the download is complete.
+                                                          MessageBox.Show("Download complete.") ' And tell the user that the download is complete.
                                                       End If
 
                                                   Catch ex As Net.WebException
                                                       btnDownloadFile.Enabled = True
                                                       btnDownloadFile2.Enabled = True
                                                       btnStopDownload.Enabled = False
-                                                      MsgBox(ex.Message & " " & ex.StackTrace)
+                                                      MessageBox.Show(ex.Message & " " & ex.StackTrace)
                                                   Catch ex As Threading.ThreadAbortException
 
                                                       btnDownloadFile.Enabled = True
                                                       btnDownloadFile2.Enabled = True
                                                       btnStopDownload.Enabled = False
                                                       If IO.File.Exists(pathToDownloadFileTo) Then IO.File.Delete(pathToDownloadFileTo)
-                                                      MsgBox("Download aborted.") ' And tell the user that the download is aborted.
+                                                      MessageBox.Show("Download aborted.") ' And tell the user that the download is aborted.
                                                   End Try
                                               End Sub) With {
             .IsBackground = True
