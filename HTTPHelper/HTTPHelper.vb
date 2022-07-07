@@ -612,8 +612,11 @@ Public Class HttpHelper
     ''' <exception cref="DataAlreadyExistsException">If this function throws a dataAlreadyExistsException, it means that the cookie already exists in this Class instance.</exception>
     Public Sub AddHTTPCookie(strCookieName As String, strCookieValue As String, strDomainDomain As String, strCookiePath As String, Optional urlEncodeHeaderContent As Boolean = False)
         If Not DoesCookieExist(strCookieName) Then
-            Dim cookieDetails As New CookieDetails() With {.cookieDomain = strDomainDomain, .cookiePath = strCookiePath}
-            cookieDetails.CookieData = If(urlEncodeHeaderContent, Web.HttpUtility.UrlEncode(strCookieValue), strCookieValue)
+            Dim cookieDetails As New CookieDetails With {
+                .cookieDomain = strDomainDomain,
+                .cookiePath = strCookiePath,
+                .CookieData = If(urlEncodeHeaderContent, Web.HttpUtility.UrlEncode(strCookieValue), strCookieValue)
+            }
             httpCookies.Add(strCookieName.ToLower, cookieDetails)
         Else
             lastException = New DataAlreadyExistsException(String.Format("The HTTP Cookie named {0}{1}{0} already exists in the settings for this Class instance.", Chr(34), strCookieName))
@@ -629,8 +632,11 @@ Public Class HttpHelper
     ''' <exception cref="DataAlreadyExistsException">If this function throws a dataAlreadyExistsException, it means that the cookie already exists in this Class instance.</exception>
     Public Sub AddHTTPCookie(strCookieName As String, strCookieValue As String, strCookieDomain As String, Optional urlEncodeHeaderContent As Boolean = False)
         If Not DoesCookieExist(strCookieName) Then
-            Dim cookieDetails As New CookieDetails() With {.cookieDomain = strCookieDomain, .cookiePath = "/"}
-            cookieDetails.CookieData = If(urlEncodeHeaderContent, Web.HttpUtility.UrlEncode(strCookieValue), strCookieValue)
+            Dim cookieDetails As New CookieDetails With {
+                .cookieDomain = strCookieDomain,
+                .cookiePath = "/",
+                .CookieData = If(urlEncodeHeaderContent, Web.HttpUtility.UrlEncode(strCookieValue), strCookieValue)
+            }
             httpCookies.Add(strCookieName.ToLower, cookieDetails)
         Else
             lastException = New DataAlreadyExistsException(String.Format("The HTTP Cookie named {0}{1}{0} already exists in the settings for this Class instance.", Chr(34), strCookieName))
