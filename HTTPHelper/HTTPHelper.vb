@@ -1505,6 +1505,13 @@ beginAgain:
     ''' <param name="needle">The String containing what you want to search for.</param>
     ''' <return>Returns a Boolean value.</return>
     Public Function CaseInsensitiveContains(haystack As String, needle As String) As Boolean
+        If String.IsNullOrEmpty(haystack) Then
+            Throw New ArgumentException($"'{NameOf(haystack)}' cannot be null or empty.", NameOf(haystack))
+        End If
+        If String.IsNullOrEmpty(needle) Then
+            Throw New ArgumentException($"'{NameOf(needle)}' cannot be null or empty.", NameOf(needle))
+        End If
+
         If String.IsNullOrWhiteSpace(haystack) Or String.IsNullOrWhiteSpace(needle) Then Return False
         Return haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase) <> -1
     End Function
@@ -1517,6 +1524,13 @@ Module DictionaryExtensions
     ''' <return>Returns a String value.</return>
     <Extension()>
     Function MyContainsKey(haystack As Dictionary(Of String, String), needle As String) As Boolean
+        If String.IsNullOrEmpty(needle) Then
+            Throw New ArgumentException($"'{NameOf(needle)}' cannot be null or empty.", NameOf(needle))
+        End If
+        If haystack Is Nothing Then
+            Throw New ArgumentNullException(NameOf(haystack))
+        End If
+
         Dim KeyValuePair As KeyValuePair(Of String, String) = haystack.FirstOrDefault(Function(item As KeyValuePair(Of String, String)) item.Key.Trim.Equals(needle, StringComparison.OrdinalIgnoreCase))
         Return KeyValuePair.Value IsNot Nothing
     End Function
@@ -1527,6 +1541,13 @@ Module DictionaryExtensions
     ''' <return>Returns a String value.</return>
     <Extension()>
     Function MyContainsKey(haystack As Dictionary(Of String, Object), needle As String) As Boolean
+        If String.IsNullOrEmpty(needle) Then
+            Throw New ArgumentException($"'{NameOf(needle)}' cannot be null or empty.", NameOf(needle))
+        End If
+        If haystack Is Nothing Then
+            Throw New ArgumentNullException(NameOf(haystack))
+        End If
+
         Dim KeyValuePair As KeyValuePair(Of String, Object) = haystack.FirstOrDefault(Function(item As KeyValuePair(Of String, Object)) item.Key.Trim.Equals(needle, StringComparison.OrdinalIgnoreCase))
         Return KeyValuePair.Value IsNot Nothing
     End Function
@@ -1537,6 +1558,13 @@ Module DictionaryExtensions
     ''' <return>Returns a String value.</return>
     <Extension()>
     Function MyContainsKey(haystack As Dictionary(Of String, CookieDetails), needle As String) As Boolean
+        If String.IsNullOrEmpty(needle) Then
+            Throw New ArgumentException($"'{NameOf(needle)}' cannot be null or empty.", NameOf(needle))
+        End If
+        If haystack Is Nothing Then
+            Throw New ArgumentNullException(NameOf(haystack))
+        End If
+
         Dim KeyValuePair As KeyValuePair(Of String, CookieDetails) = haystack.FirstOrDefault(Function(item As KeyValuePair(Of String, CookieDetails)) item.Key.Trim.Equals(needle, StringComparison.OrdinalIgnoreCase))
         Return KeyValuePair.Value IsNot Nothing
     End Function
