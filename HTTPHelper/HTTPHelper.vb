@@ -1500,21 +1500,6 @@ beginAgain:
 
         Return result
     End Function
-
-    ''' <summary>This function uses an IndexOf call to do a case-insensitive search. This function operates a lot like Contains().</summary>
-    ''' <param name="needle">The String containing what you want to search for.</param>
-    ''' <return>Returns a Boolean value.</return>
-    Public Function CaseInsensitiveContains(haystack As String, needle As String) As Boolean
-        If String.IsNullOrEmpty(haystack) Then
-            Throw New ArgumentException($"'{NameOf(haystack)}' cannot be null or empty.", NameOf(haystack))
-        End If
-        If String.IsNullOrEmpty(needle) Then
-            Throw New ArgumentException($"'{NameOf(needle)}' cannot be null or empty.", NameOf(needle))
-        End If
-
-        If String.IsNullOrWhiteSpace(haystack) Or String.IsNullOrWhiteSpace(needle) Then Return False
-        Return haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase) <> -1
-    End Function
 End Class
 
 Module DictionaryExtensions
