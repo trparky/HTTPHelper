@@ -67,27 +67,11 @@ Public Class Form1
                 If certDetails IsNot Nothing Then
                     TextBox1.Text &= certDetails.ToString
                 End If
-
-                'For Each strHeaderName As String In httpHelper.getHTTPResponseHeaders
-                '    MessageBox.Show(strHeaderName & " = " & httpHelper.getHTTPResponseHeaders.Item(strHeaderName))
-                'Next
             End If
         Catch ex As Net.WebException
             MessageBox.Show(ex.Message & " " & ex.StackTrace)
         End Try
     End Sub
-
-    'Sub updateStatus(ByVal httpHelper As Tom.httpHelper)
-    '    ' This gets our percentage of the file that's been downloaded.
-    '    Dim percentage As Short = httpHelper.getHTTPDownloadProgressPercentage()
-
-    '    While percentage <> 100 ' We loop while the percentage is not 100.
-    '        Label1.Text = String.Format("Downloaded {0} of {1} ({2}%)", httpHelper.getHTTPDownloadLocalFileSize(), httpHelper.getHTTPDownloadRemoteFileSize(), percentage)
-    '        ProgressBar1.Value = percentage ' Set the progress bar the percentage value.
-    '        Threading.Thread.Sleep(1000) ' Let's sleep for a second.
-    '        percentage = httpHelper.getHTTPDownloadProgressPercentage() ' Get the new percentage value.
-    '    End While
-    'End Sub
 
     Private Sub btnStopDownload_Click(sender As Object, e As EventArgs) Handles btnStopDownload.Click
         downloadThread.Abort()
