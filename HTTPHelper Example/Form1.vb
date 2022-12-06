@@ -14,7 +14,7 @@ Public Class Form1
             httpHelper.addHTTPHeader("myheader", "my header contents")
             httpHelper.setHTTPCredentials("test", "test")
             httpHelper.SetURLPreProcessor = Function(strURLInput As String) As String
-                                                Debug.WriteLine("strURLInput = " & strURLInput)
+                                                Debug.WriteLine($"strURLInput = {strURLInput}")
                                                 Return strURLInput
                                             End Function
 
@@ -37,7 +37,7 @@ Public Class Form1
         Catch ex As Net.WebException
             ' You can handle web exceptions different than normal exceptions with this code.
         Catch ex As Exception
-            MessageBox.Show(ex.Message & " " & ex.StackTrace)
+            MessageBox.Show($"{ex.Message} {ex.StackTrace}")
         End Try
     End Sub
 
@@ -55,7 +55,7 @@ Public Class Form1
             httpHelper.AddPOSTData("minor", "9")
             httpHelper.AddPOSTData("build", "6")
             httpHelper.SetURLPreProcessor = Function(strURLInput As String) As String
-                                                Debug.WriteLine("strURLInput = " & strURLInput)
+                                                Debug.WriteLine($"strURLInput = {strURLInput}")
                                                 Return strURLInput
                                             End Function
 
@@ -69,7 +69,7 @@ Public Class Form1
                 End If
             End If
         Catch ex As Net.WebException
-            MessageBox.Show(ex.Message & " " & ex.StackTrace)
+            MessageBox.Show($"{ex.Message} {ex.StackTrace}")
         End Try
     End Sub
 
@@ -98,7 +98,7 @@ Public Class Form1
                                                             Label1.Invoke(Sub() Label1.Text = String.Format("Downloaded {0} of {1}", httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.LocalFileSize), httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.RemoteFileSize)))
                                                         End If
 
-                                                        Label2.Invoke(Sub() Label2.Text = downloadStatusDetails.PercentageDownloaded.ToString & "%")
+                                                        Label2.Invoke(Sub() Label2.Text = $"{downloadStatusDetails.PercentageDownloaded.ToString}%")
                                                         ProgressBar1.Invoke(Sub() ProgressBar1.Value = downloadStatusDetails.PercentageDownloaded)
                                                     End Sub
 
@@ -131,7 +131,7 @@ Public Class Form1
                                                       btnDownloadFile.Enabled = True
                                                       btnDownloadFile2.Enabled = True
                                                       btnStopDownload.Enabled = False
-                                                      MessageBox.Show(ex.Message & " " & ex.StackTrace)
+                                                      MessageBox.Show($"{ex.Message} {ex.StackTrace}")
                                                   Catch ex As Threading.ThreadAbortException
 
                                                       btnDownloadFile.Enabled = True
@@ -177,7 +177,7 @@ Public Class Form1
                 End If
             End If
         Catch ex As Net.WebException
-            MessageBox.Show(ex.Message & " " & ex.StackTrace)
+            MessageBox.Show($"{ex.Message} {ex.StackTrace}")
         End Try
     End Sub
 
@@ -208,7 +208,7 @@ Public Class Form1
         Catch ex As Net.WebException
             ' You can handle web exceptions different than normal exceptions with this code.
         Catch ex As Exception
-            MessageBox.Show(ex.Message & " " & ex.StackTrace)
+            MessageBox.Show($"{ex.Message} {ex.StackTrace}")
         End Try
     End Sub
 
@@ -247,7 +247,7 @@ Public Class Form1
                                                       btnDownloadFile.Enabled = True
                                                       btnDownloadFile2.Enabled = True
                                                       btnStopDownload.Enabled = False
-                                                      MessageBox.Show(ex.Message & " " & ex.StackTrace)
+                                                      MessageBox.Show($"{ex.Message} {ex.StackTrace}")
                                                   Catch ex As Threading.ThreadAbortException
 
                                                       btnDownloadFile.Enabled = True
@@ -270,9 +270,9 @@ startAgain:
                                                 If downloadStatusDetails IsNot Nothing Then
                                                     Label1.Invoke(Sub() Label1.Text = String.Format("Downloaded {0} of {1} ({2}/s)", httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.localFileSize), httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.remoteFileSize), httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.localFileSize - oldFileSize)))
 
-                                                    oldFileSize = downloadStatusDetails.localFileSize
+                                                    oldFileSize = downloadStatusDetails.LocalFileSize
 
-                                                    Label2.Invoke(Sub() Label2.Text = downloadStatusDetails.percentageDownloaded.ToString & "%")
+                                                    Label2.Invoke(Sub() Label2.Text = $"{downloadStatusDetails.PercentageDownloaded.ToString}%")
                                                     ProgressBar1.Invoke(Sub() ProgressBar1.Value = downloadStatusDetails.percentageDownloaded)
                                                 End If
 
