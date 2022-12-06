@@ -13,26 +13,26 @@ Public Class Form1
             httpHelper.addHTTPCookie("mycookie", "my cookie contents", "www.toms-world.org", "/")
             httpHelper.addHTTPHeader("myheader", "my header contents")
             httpHelper.setHTTPCredentials("test", "test")
-            httpHelper.setURLPreProcessor = Function(ByVal strURLInput As String) As String
+            httpHelper.SetURLPreProcessor = Function(strURLInput As String) As String
                                                 Debug.WriteLine("strURLInput = " & strURLInput)
                                                 Return strURLInput
                                             End Function
 
-            httpHelper.setCustomErrorHandler = Function(ex As Exception, classInstance As HTTPHelper.httpHelper)
+            httpHelper.SetCustomErrorHandler = Function(ex As Exception, classInstance As HTTPHelper.HttpHelper)
                                                    MessageBox.Show(ex.Message)
                                                    Return False
                                                End Function
 
-            If httpHelper.getWebData("https://www.toms-world.org/php/phpinfo.php", strServerResponse) Then
+            If httpHelper.GetWebData("https://www.toms-world.org/php/phpinfo.php", strServerResponse) Then
                 WebBrowser1.DocumentText = strServerResponse
-                TextBox1.Text = httpHelper.getHTTPResponseHeaders(True).ToString
+                TextBox1.Text = httpHelper.GetHTTPResponseHeaders(True).ToString
 
-                Dim certDetails As X509Certificate2 = httpHelper.getCertificateDetails(False)
+                Dim certDetails As X509Certificate2 = httpHelper.GetCertificateDetails(False)
                 If certDetails IsNot Nothing Then
                     TextBox1.Text &= certDetails.ToString
                 End If
             End If
-        Catch ex As HTTPHelper.httpProtocolException
+        Catch ex As HTTPHelper.HttpProtocolException
             ' You can handle httpProtocolExceptions different than normal exceptions with this code.
         Catch ex As Net.WebException
             ' You can handle web exceptions different than normal exceptions with this code.
@@ -45,25 +45,25 @@ Public Class Form1
         Try
             Dim strServerResponse As String = Nothing
 
-            Dim httpHelper As New HTTPHelper.httpHelper() With {.setUserAgent = "Microsoft .NET"} ' Set our User Agent String.
-            httpHelper.addHTTPCookie("mycookie", "my cookie contents", "www.toms-world.org", "/")
-            httpHelper.addHTTPHeader("myheader", "my header contents")
-            httpHelper.addPOSTData("test1", "value1")
-            httpHelper.addPOSTData("test2", "value2")
-            httpHelper.addGETData("test3", "value3")
-            httpHelper.addPOSTData("major", "3")
-            httpHelper.addPOSTData("minor", "9")
-            httpHelper.addPOSTData("build", "6")
-            httpHelper.setURLPreProcessor = Function(ByVal strURLInput As String) As String
+            Dim httpHelper As New HTTPHelper.HttpHelper() With {.SetUserAgent = "Microsoft .NET"} ' Set our User Agent String.
+            httpHelper.AddHTTPCookie("mycookie", "my cookie contents", "www.toms-world.org", "/")
+            httpHelper.AddHTTPHeader("myheader", "my header contents")
+            httpHelper.AddPOSTData("test1", "value1")
+            httpHelper.AddPOSTData("test2", "value2")
+            httpHelper.AddGETData("test3", "value3")
+            httpHelper.AddPOSTData("major", "3")
+            httpHelper.AddPOSTData("minor", "9")
+            httpHelper.AddPOSTData("build", "6")
+            httpHelper.SetURLPreProcessor = Function(strURLInput As String) As String
                                                 Debug.WriteLine("strURLInput = " & strURLInput)
                                                 Return strURLInput
                                             End Function
 
-            If httpHelper.getWebData("https://www.toms-world.org/httphelper.php", strServerResponse) Then
+            If httpHelper.GetWebData("https://www.toms-world.org/httphelper.php", strServerResponse) Then
                 WebBrowser1.DocumentText = strServerResponse
-                TextBox1.Text = httpHelper.getHTTPResponseHeaders().ToString
+                TextBox1.Text = httpHelper.GetHTTPResponseHeaders().ToString
 
-                Dim certDetails As X509Certificate2 = httpHelper.getCertificateDetails(False)
+                Dim certDetails As X509Certificate2 = httpHelper.GetCertificateDetails(False)
                 If certDetails IsNot Nothing Then
                     TextBox1.Text &= certDetails.ToString
                 End If
@@ -98,24 +98,24 @@ Public Class Form1
 
     Private Sub btnDownloadFile_Click(sender As Object, e As EventArgs) Handles btnDownloadFile.Click
         ' First we create our httpHelper Class instance.
-        Dim httpHelper As New HTTPHelper.httpHelper() With {
-            .setUserAgent = "Microsoft .NET", ' Set our User Agent String.
-            .enableMultiThreadedDownloadStatusUpdates = True
+        Dim httpHelper As New HTTPHelper.HttpHelper() With {
+            .SetUserAgent = "Microsoft .NET", ' Set our User Agent String.
+            .EnableMultiThreadedDownloadStatusUpdates = True
         }
         Dim oldFileSize As ULong = 0
 
         ' Now we set up our download status updating Lambda function that's passed to the Class instance to execute within the memory space of the Class.
-        httpHelper.setDownloadStatusUpdateRoutine = Sub(ByVal downloadStatusDetails As HTTPHelper.downloadStatusDetails)
-                                                        If httpHelper.enableMultiThreadedDownloadStatusUpdates Then
-                                                            Label1.Invoke(Sub() Label1.Text = String.Format("Downloaded {0} of {1} ({2}/s)", httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.localFileSize), httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.remoteFileSize), httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.localFileSize - oldFileSize)))
+        httpHelper.SetDownloadStatusUpdateRoutine = Sub(downloadStatusDetails As HTTPHelper.DownloadStatusDetails)
+                                                        If httpHelper.EnableMultiThreadedDownloadStatusUpdates Then
+                                                            Label1.Invoke(Sub() Label1.Text = String.Format("Downloaded {0} of {1} ({2}/s)", httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.LocalFileSize), httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.RemoteFileSize), httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.LocalFileSize - oldFileSize)))
 
-                                                            oldFileSize = downloadStatusDetails.localFileSize
+                                                            oldFileSize = downloadStatusDetails.LocalFileSize
                                                         Else
-                                                            Label1.Invoke(Sub() Label1.Text = String.Format("Downloaded {0} of {1}", httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.localFileSize), httpHelper.fileSizeToHumanReadableFormat(downloadStatusDetails.remoteFileSize)))
+                                                            Label1.Invoke(Sub() Label1.Text = String.Format("Downloaded {0} of {1}", httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.LocalFileSize), httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.RemoteFileSize)))
                                                         End If
 
-                                                        Label2.Invoke(Sub() Label2.Text = downloadStatusDetails.percentageDownloaded.ToString & "%")
-                                                        ProgressBar1.Invoke(Sub() ProgressBar1.Value = downloadStatusDetails.percentageDownloaded)
+                                                        Label2.Invoke(Sub() Label2.Text = downloadStatusDetails.PercentageDownloaded.ToString & "%")
+                                                        ProgressBar1.Invoke(Sub() ProgressBar1.Value = downloadStatusDetails.PercentageDownloaded)
                                                     End Sub
 
         ' Now we need to create our download thread.
