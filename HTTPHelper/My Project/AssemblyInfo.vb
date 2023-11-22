@@ -12,7 +12,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyDescription("An HTTP Helper Library that allows you to do many HTTP-related stuff but without all of the hassle of writing your own code to do it.")>
 <Assembly: AssemblyCompany("")>
 <Assembly: AssemblyProduct("Tom's HTTPHelper (Requires Microsoft .NET 4.6)")>
-<Assembly: AssemblyCopyright("Copyright © Thomas R. Parkison 2016 - 2020")>
+<Assembly: AssemblyCopyright("Copyright © Thomas R. Parkison 2023-2024")>
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)>
