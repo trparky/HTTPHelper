@@ -23,7 +23,7 @@ Public Class Form1
                                                    Return False
                                                End Function
 
-            If httpHelper.GetWebData("https://www.toms-world.org/php/phpinfo.php", strServerResponse) Then
+            If httpHelper.GetWebData(If(String.IsNullOrWhiteSpace(TxtURL.Text), "https://www.toms-world.org/php/phpinfo.php", TxtURL.Text), strServerResponse) Then
                 WebBrowser1.DocumentText = strServerResponse
                 TextBox1.Text = httpHelper.GetHTTPResponseHeaders(True).ToString
 
