@@ -24,7 +24,8 @@ Partial Class Form1
     Private Sub InitializeComponent()
         Me.btnGetWebPageData = New System.Windows.Forms.Button()
         Me.postDataExample = New System.Windows.Forms.Button()
-        Me.WebBrowser1 = New System.Windows.Forms.WebBrowser()
+        Me.WebView21 = New Microsoft.Web.WebView2.WinForms.WebView2()
+        CType(Me.WebView21, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.ProgressBar1 = New System.Windows.Forms.ProgressBar()
         Me.btnDownloadFile = New System.Windows.Forms.Button()
@@ -35,11 +36,13 @@ Partial Class Form1
         Me.Button1 = New System.Windows.Forms.Button()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.btnDownloadFile2 = New System.Windows.Forms.Button()
+        Me.TxtURL = New System.Windows.Forms.TextBox()
+        Me.Label3 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'btnGetWebPageData
         '
-        Me.btnGetWebPageData.Location = New System.Drawing.Point(12, 12)
+        Me.btnGetWebPageData.Location = New System.Drawing.Point(12, 41)
         Me.btnGetWebPageData.Name = "btnGetWebPageData"
         Me.btnGetWebPageData.Size = New System.Drawing.Size(158, 23)
         Me.btnGetWebPageData.TabIndex = 0
@@ -48,29 +51,32 @@ Partial Class Form1
         '
         'postDataExample
         '
-        Me.postDataExample.Location = New System.Drawing.Point(176, 12)
+        Me.postDataExample.Location = New System.Drawing.Point(176, 41)
         Me.postDataExample.Name = "postDataExample"
         Me.postDataExample.Size = New System.Drawing.Size(158, 23)
         Me.postDataExample.TabIndex = 1
         Me.postDataExample.Text = "Post Data to Web Site"
         Me.postDataExample.UseVisualStyleBackColor = True
         '
-        'WebBrowser1
+        'WebView21
         '
-        Me.WebBrowser1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+        Me.WebView21.AllowExternalDrop = True
+        Me.WebView21.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.WebBrowser1.Location = New System.Drawing.Point(12, 108)
-        Me.WebBrowser1.MinimumSize = New System.Drawing.Size(20, 20)
-        Me.WebBrowser1.Name = "WebBrowser1"
-        Me.WebBrowser1.Size = New System.Drawing.Size(804, 269)
-        Me.WebBrowser1.TabIndex = 2
+        Me.WebView21.CreationProperties = Nothing
+        Me.WebView21.DefaultBackgroundColor = System.Drawing.Color.White
+        Me.WebView21.Location = New System.Drawing.Point(12, 122)
+        Me.WebView21.Name = "WebView21"
+        Me.WebView21.Size = New System.Drawing.Size(804, 374)
+        Me.WebView21.TabIndex = 14
+        Me.WebView21.ZoomFactor = 1.0R
         '
         'TextBox1
         '
         Me.TextBox1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.TextBox1.Location = New System.Drawing.Point(12, 383)
+        Me.TextBox1.Location = New System.Drawing.Point(12, 502)
         Me.TextBox1.Multiline = True
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
@@ -79,7 +85,7 @@ Partial Class Form1
         '
         'ProgressBar1
         '
-        Me.ProgressBar1.Location = New System.Drawing.Point(12, 41)
+        Me.ProgressBar1.Location = New System.Drawing.Point(12, 70)
         Me.ProgressBar1.Name = "ProgressBar1"
         Me.ProgressBar1.Size = New System.Drawing.Size(485, 23)
         Me.ProgressBar1.TabIndex = 4
@@ -96,7 +102,7 @@ Partial Class Form1
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(12, 67)
+        Me.Label1.Location = New System.Drawing.Point(12, 96)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(39, 13)
         Me.Label1.TabIndex = 6
@@ -104,7 +110,7 @@ Partial Class Form1
         '
         'btnUpload
         '
-        Me.btnUpload.Location = New System.Drawing.Point(340, 12)
+        Me.btnUpload.Location = New System.Drawing.Point(340, 41)
         Me.btnUpload.Name = "btnUpload"
         Me.btnUpload.Size = New System.Drawing.Size(75, 23)
         Me.btnUpload.TabIndex = 7
@@ -137,7 +143,7 @@ Partial Class Form1
         'Label2
         '
         Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(458, 67)
+        Me.Label2.Location = New System.Drawing.Point(458, 96)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(39, 13)
         Me.Label2.TabIndex = 10
@@ -152,11 +158,29 @@ Partial Class Form1
         Me.btnDownloadFile2.Text = "Multi-Threaded Download File"
         Me.btnDownloadFile2.UseVisualStyleBackColor = True
         '
+        'TxtURL
+        '
+        Me.TxtURL.Location = New System.Drawing.Point(46, 12)
+        Me.TxtURL.Name = "TxtURL"
+        Me.TxtURL.Size = New System.Drawing.Size(506, 20)
+        Me.TxtURL.TabIndex = 12
+        '
+        'Label3
+        '
+        Me.Label3.AutoSize = True
+        Me.Label3.Location = New System.Drawing.Point(11, 17)
+        Me.Label3.Name = "Label3"
+        Me.Label3.Size = New System.Drawing.Size(29, 13)
+        Me.Label3.TabIndex = 13
+        Me.Label3.Text = "URL"
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(828, 581)
+        Me.ClientSize = New System.Drawing.Size(828, 700)
+        Me.Controls.Add(Me.Label3)
+        Me.Controls.Add(Me.TxtURL)
         Me.Controls.Add(Me.btnDownloadFile2)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Button1)
@@ -166,11 +190,12 @@ Partial Class Form1
         Me.Controls.Add(Me.btnDownloadFile)
         Me.Controls.Add(Me.ProgressBar1)
         Me.Controls.Add(Me.TextBox1)
-        Me.Controls.Add(Me.WebBrowser1)
+        Me.Controls.Add(Me.WebView21)
         Me.Controls.Add(Me.postDataExample)
         Me.Controls.Add(Me.btnGetWebPageData)
         Me.Name = "Form1"
         Me.Text = "HTTPHelper Example"
+        CType(Me.WebView21, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -178,7 +203,7 @@ Partial Class Form1
 
     Friend WithEvents btnGetWebPageData As Button
     Friend WithEvents postDataExample As Button
-    Friend WithEvents WebBrowser1 As WebBrowser
+    Friend WithEvents WebView21 As Microsoft.Web.WebView2.WinForms.WebView2
     Friend WithEvents TextBox1 As TextBox
     Friend WithEvents ProgressBar1 As ProgressBar
     Friend WithEvents btnDownloadFile As Button
@@ -189,4 +214,6 @@ Partial Class Form1
     Friend WithEvents Button1 As Button
     Friend WithEvents Label2 As Label
     Friend WithEvents btnDownloadFile2 As Button
+    Friend WithEvents TxtURL As TextBox
+    Friend WithEvents Label3 As Label
 End Class
