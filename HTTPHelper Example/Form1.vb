@@ -23,8 +23,8 @@ Public Class Form1
                                                    Return False
                                                End Function
 
-            If httpHelper.GetWebData(If(String.IsNullOrWhiteSpace(TxtURL.Text), "https://www.toms-world.org/php/phpinfo.php", TxtURL.Text), strServerResponse) Then
-                WebBrowser1.DocumentText = strServerResponse
+            If httpHelper.GetWebData(If(String.IsNullOrWhiteSpace(TxtURL.Text), "https://www.toms-world.org/blog", TxtURL.Text), strServerResponse) Then
+                WebView21.NavigateToString(strServerResponse)
                 TextBox1.Text = httpHelper.GetHTTPResponseHeaders(True).ToString
 
                 Dim certDetails As X509Certificate2 = httpHelper.GetCertificateDetails(False)
@@ -60,7 +60,7 @@ Public Class Form1
                                             End Function
 
             If httpHelper.GetWebData("https://www.toms-world.org/httphelper.php", strServerResponse) Then
-                WebBrowser1.DocumentText = strServerResponse
+                WebView21.NavigateToString(strServerResponse)
                 TextBox1.Text = httpHelper.GetHTTPResponseHeaders().ToString
 
                 Dim certDetails As X509Certificate2 = httpHelper.GetCertificateDetails(False)
@@ -167,7 +167,7 @@ Public Class Form1
                 httpHelper.AddFileUpload("myfileupload", OpenFileDialog.FileName, Nothing, Nothing)
 
                 If httpHelper.UploadData("https://www.toms-world.org/httphelper.php", strServerResponse) Then
-                    WebBrowser1.DocumentText = strServerResponse
+                    WebView21.NavigateToString(strServerResponse)
                     TextBox1.Text = httpHelper.GetHTTPResponseHeaders().ToString
 
                     Dim certDetails As X509Certificate2 = httpHelper.GetCertificateDetails(False)
@@ -183,6 +183,7 @@ Public Class Form1
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Control.CheckForIllegalCrossThreadCalls = False
+        WebView21.EnsureCoreWebView2Async(Nothing)
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
@@ -195,7 +196,7 @@ Public Class Form1
             httpHelper.AddHTTPHeader("myheader", "my header contents")
 
             If httpHelper.GetWebData("https://www.toms-world.org/download/restorepointcreatorchangelog.rtf", strServerResponse) Then
-                WebBrowser1.DocumentText = strServerResponse
+                WebView21.NavigateToString(strServerResponse)
                 TextBox1.Text = httpHelper.GetHTTPResponseHeaders(True).ToString
 
                 Dim certDetails As X509Certificate2 = httpHelper.GetCertificateDetails(False)
