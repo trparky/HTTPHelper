@@ -707,7 +707,7 @@ Public Class HttpHelper
             Dim formFileInstance As New FormFile With {
                 .FormName = strFormName,
                 .LocalFilePath = strLocalFilePath,
-                .RemoteFileName = strRemoteFileName
+                .RemoteFileName = If(String.IsNullOrWhiteSpace(strRemoteFileName), New FileInfo(strLocalFilePath).Name, strRemoteFileName)
             }
 
             If String.IsNullOrEmpty(strContentType) Then
