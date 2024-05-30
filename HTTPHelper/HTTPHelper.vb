@@ -231,7 +231,6 @@ Public Class HttpHelper
     Private urlPreProcessor As Func(Of String, String)
     Private customErrorHandler As [Delegate]
 
-    Private Const strLF As String = vbLf
     Private Const strCRLF As String = vbCrLf
 
     Private downloadStatusUpdater As [Delegate]
@@ -1498,12 +1497,10 @@ beginAgain:
     End Sub
 
     Private Function ConvertLineFeeds(input As String) As String
-        ' Checks to see if the file is in Windows linefeed format or UNIX linefeed format.
-        If input.Contains(vbCrLf) Then
-            Return input ' It's in Windows linefeed format so we return the output as is.
-        Else
-            Return input.Replace(strLF, strCRLF) ' It's in UNIX linefeed format so we have to convert it to Windows before we return the output.
-        End If
+        input = input.Replace(vbCrLf, vbLf) ' Temporarily replace all CRLF with LF
+        input = input.Replace(vbCr, vbLf) ' Convert standalone CR to LF
+        input = input.Replace(vbLf, vbCrLf) ' Finally, replace all LF with CRLF
+        Return input
     End Function
 
     Private Function GetPOSTDataString() As String
