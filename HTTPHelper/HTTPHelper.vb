@@ -461,12 +461,12 @@ Public Class HttpHelper
             stringBuilder.AppendLine("--== Raw Exception Data ==--")
             stringBuilder.AppendLine(lastException.ToString)
 
-            If lastException.GetType.Equals(GetType(Net.WebException)) Then
+            If TypeOf lastException Is Net.WebException Then
                 stringBuilder.AppendLine($"Raw Exception Status Code: {DirectCast(lastException, Net.WebException).Status}")
             End If
         End If
 
-        Return stringBuilder.ToString.Trim
+            Return stringBuilder.ToString.Trim
     End Function
 
     ''' <summary>Gets the remote file size.</summary>
@@ -871,7 +871,7 @@ beginAgain:
                 Return False
             End If
 
-            If ex.GetType.Equals(GetType(Net.WebException)) Then
+            If TypeOf ex Is Net.WebException Then
                 Dim ex2 As Net.WebException = DirectCast(ex, Net.WebException)
 
                 If ex2.Status = Net.WebExceptionStatus.ProtocolError Then
@@ -984,7 +984,7 @@ beginAgain:
                 Return False
             End If
 
-            If ex.GetType.Equals(GetType(Net.WebException)) Then
+            If TypeOf ex Is Net.WebException Then
                 Dim ex2 As Net.WebException = DirectCast(ex, Net.WebException)
 
                 If ex2.Status = Net.WebExceptionStatus.ProtocolError Then
@@ -1109,7 +1109,7 @@ beginAgain:
                 Return False
             End If
 
-            If ex.GetType.Equals(GetType(Net.WebException)) Then
+            If TypeOf ex Is Net.WebException Then
                 Dim ex2 As Net.WebException = DirectCast(ex, Net.WebException)
 
                 If ex2.Status = Net.WebExceptionStatus.ProtocolError Then
@@ -1191,7 +1191,7 @@ beginAgain:
                 Return False
             End If
 
-            If ex.GetType.Equals(GetType(Net.WebException)) Then
+            If TypeOf ex Is Net.WebException Then
                 Dim ex2 As Net.WebException = DirectCast(ex, Net.WebException)
 
                 If ex2.Status = Net.WebExceptionStatus.ProtocolError Then
@@ -1271,7 +1271,7 @@ beginAgain:
                 Return False
             End If
 
-            If ex.GetType.Equals(GetType(Net.WebException)) Then
+            If TypeOf ex Is Net.WebException Then
                 Dim ex2 As Net.WebException = DirectCast(ex, Net.WebException)
 
                 If ex2.Status = Net.WebExceptionStatus.ProtocolError Then
@@ -1339,7 +1339,7 @@ beginAgain:
                 For Each entry As KeyValuePair(Of String, Object) In postData
                     httpRequestWriter.Write(boundaryBytes, 0, boundaryBytes.Length)
 
-                    If entry.Value.GetType.Equals(GetType(FormFile)) Then
+                    If TypeOf entry.Value Is FormFile Then
                         formFileObjectInstance = DirectCast(entry.Value, FormFile)
 
                         If String.IsNullOrEmpty(formFileObjectInstance.RemoteFileName) Then
@@ -1408,7 +1408,7 @@ beginAgain:
                 Return False
             End If
 
-            If ex.GetType.Equals(GetType(Net.WebException)) Then
+            If TypeOf ex Is Net.WebException Then
                 Dim ex2 As Net.WebException = DirectCast(ex, Net.WebException)
 
                 If ex2.Status = Net.WebExceptionStatus.ProtocolError Then
