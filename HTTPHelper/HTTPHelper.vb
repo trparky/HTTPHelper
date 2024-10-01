@@ -1315,7 +1315,7 @@ beginAgain:
             If postData.Count <> 0 Then
                 Using httpRequestWriter As Stream = httpWebRequest.GetRequestStream()
                     Dim header As String, fileInfo As FileInfo, formFileObjectInstance As FormFile
-                    Dim bytes As Byte(), buffer As Byte(), fileStream As FileStream, data As String
+                    Dim bytes As Byte(), data As String
 
                     For Each entry As KeyValuePair(Of String, Object) In postData
                         httpRequestWriter.Write(boundaryBytes, 0, boundaryBytes.Length)
@@ -1336,16 +1336,9 @@ beginAgain:
                             bytes = Text.Encoding.UTF8.GetBytes(header)
                             httpRequestWriter.Write(bytes, 0, bytes.Length)
 
-                            fileStream = New FileStream(formFileObjectInstance.LocalFilePath, FileMode.Open)
-                            buffer = New Byte(32768) {}
-
-                            While fileStream.Read(buffer, 0, buffer.Length) <> 0
-                                httpRequestWriter.Write(buffer, 0, buffer.Length)
-                            End While
-
-                            fileStream.Close()
-                            fileStream.Dispose()
-                            fileStream = Nothing
+                            Using fileStream = New FileStream(formFileObjectInstance.LocalFilePath, FileMode.Open)
+                                fileStream.CopyTo(httpRequestWriter)
+                            End Using
                         Else
                             data = $"Content-Disposition: form-data; name=""{entry.Key}""{vbCrLf}{vbCrLf}{entry.Value}"
                             bytes = Text.Encoding.UTF8.GetBytes(data)
