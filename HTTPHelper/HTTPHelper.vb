@@ -990,8 +990,6 @@ beginAgain:
             End If
 
             Return False
-        Finally
-            memStream?.Dispose()
         End Try
     End Function
 
