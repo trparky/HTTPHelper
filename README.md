@@ -2,3 +2,7 @@ The HTTPHelper is a class written in Microsoft .NET that provides a very easy to
 You can add cookies, custom HTTP headers, GET and POST data, and even download files and inject your own plugins into the code class instance to provide for real-time file download status updates.
 
 Oh, and it's open source too!
+
+## License Change Notice
+As of October 24th, 2024, this project is now licensed under the GPL License. 
+Please refer to the LICENSE file for the updated terms. Previous versions were licensed under the MIT License.
