@@ -858,7 +858,7 @@ beginAgain:
 
             Return False
         Catch ex As Threading.ThreadAbortException
-            If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
+            httpWebRequest?.Abort()
             Return False
         Catch ex As Exception
             lastException = ex
@@ -956,7 +956,7 @@ beginAgain:
             Return True
         Catch ex As Threading.ThreadAbortException
             AbortDownloadStatusUpdaterThread()
-            If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
+            httpWebRequest?.Abort()
             Return False
         Catch ex As Exception
             AbortDownloadStatusUpdaterThread()
@@ -1146,7 +1146,7 @@ beginAgain:
             End Using
         Catch ex As Exception
             If ex.GetType.Equals(GetType(Threading.ThreadAbortException)) Then
-                If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
+                httpWebRequest?.Abort()
                 Return False
             End If
 
@@ -1222,7 +1222,7 @@ beginAgain:
             End Using
         Catch ex As Exception
             If ex.GetType.Equals(GetType(Threading.ThreadAbortException)) Then
-                If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
+                httpWebRequest?.Abort()
                 Return False
             End If
 
@@ -1348,7 +1348,7 @@ beginAgain:
             End Using
         Catch ex As Exception
             If ex.GetType.Equals(GetType(Threading.ThreadAbortException)) Then
-                If httpWebRequest IsNot Nothing Then httpWebRequest.Abort()
+                httpWebRequest?.Abort()
             End If
 
             lastException = ex
