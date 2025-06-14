@@ -199,9 +199,12 @@ Class Credentials
     Public Property StrPasswordInput As String
 End Class
 
+' Strongly typed delegate
+Public Delegate Sub DownloadStatusUpdaterDelegate(downloadStatusDetails As DownloadStatusDetails)
+
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class HttpHelper
-    Private Const classVersion As String = "1.345"
+    Private Const classVersion As String = "1.346"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -232,7 +235,7 @@ Public Class HttpHelper
 
     Private Const strCRLF As String = vbCrLf
 
-    Private downloadStatusUpdater As [Delegate]
+    Private downloadStatusUpdater As DownloadStatusUpdaterDelegate
 
     Public Structure RemoteFileStats
         Public contentLength As Long
@@ -353,8 +356,8 @@ Public Class HttpHelper
     ''' OR A C# Example...
     ''' httpHelper.setDownloadStatusUpdateRoutine((downloadStatusDetails downloadStatusDetails) => { })
     ''' </example>
-    Public WriteOnly Property SetDownloadStatusUpdateRoutine As [Delegate]
-        Set(value As [Delegate])
+    Public WriteOnly Property SetDownloadStatusUpdateRoutine As DownloadStatusUpdaterDelegate
+        Set(value As DownloadStatusUpdaterDelegate)
             downloadStatusUpdater = value
         End Set
     End Property
@@ -778,7 +781,7 @@ Public Class HttpHelper
     Private Sub DownloadStatusUpdaterThreadSubroutine()
         Try
 beginAgain:
-            downloadStatusUpdater.DynamicInvoke(downloadStatusDetails)
+            downloadStatusUpdater(downloadStatusDetails)
             Threading.Thread.Sleep(_intDownloadThreadSleepTime)
             GoTo beginAgain
         Catch ex As Threading.ThreadAbortException
