@@ -199,12 +199,13 @@ Class Credentials
     Public Property StrPasswordInput As String
 End Class
 
-' Strongly typed delegate
+' Strongly typed delegates
 Public Delegate Sub DownloadStatusUpdaterDelegate(downloadStatusDetails As DownloadStatusDetails)
+Public Delegate Sub CustomErrorHandlerDelegate(ex As Exception, thisInstance As HttpHelper)
 
 ''' <summary>Allows you to easily POST and upload files to a remote HTTP server without you, the programmer, knowing anything about how it all works. This class does it all for you. It handles adding a User Agent String, additional HTTP Request Headers, string data to your HTTP POST data, and files to be uploaded in the HTTP POST data.</summary>
 Public Class HttpHelper
-    Private Const classVersion As String = "1.346"
+    Private Const classVersion As String = "1.347"
 
     Private strUserAgentString As String = Nothing
     Private boolUseProxy As Boolean = False
@@ -231,11 +232,11 @@ Public Class HttpHelper
 
     Private sslCertificate As X509Certificates.X509Certificate2
     Private urlPreProcessor As Func(Of String, String)
-    Private customErrorHandler As [Delegate]
 
     Private Const strCRLF As String = vbCrLf
 
     Private downloadStatusUpdater As DownloadStatusUpdaterDelegate
+    Private customErrorHandler As CustomErrorHandlerDelegate
 
     Public Structure RemoteFileStats
         Public contentLength As Long
@@ -267,8 +268,8 @@ Public Class HttpHelper
     ''' OR A C# Example...
     ''' httpHelper.setCustomErrorHandler((Exception ex, httpHelper classInstance) => { }
     ''' </example>
-    Public WriteOnly Property SetCustomErrorHandler As [Delegate]
-        Set(value As [Delegate])
+    Public WriteOnly Property SetCustomErrorHandler As CustomErrorHandlerDelegate
+        Set(value As CustomErrorHandlerDelegate)
             customErrorHandler = value
         End Set
     End Property
@@ -809,7 +810,7 @@ beginAgain:
                     downloadStatusUpdaterThread.Start()
                 End If
             Else
-                downloadStatusUpdater.DynamicInvoke(downloadStatusDetails)
+                downloadStatusUpdater(downloadStatusDetails)
             End If
         End If
     End Sub
@@ -868,7 +869,7 @@ beginAgain:
             If Not throwExceptionIfError Then Return False
 
             If customErrorHandler IsNot Nothing Then
-                customErrorHandler.DynamicInvoke(ex, Me)
+                customErrorHandler(ex, Me)
                 ' Since we handled the exception with an injected custom error handler, we can now exit the function with the return of a False value.
                 Return False
             End If
@@ -968,7 +969,7 @@ beginAgain:
             If Not throwExceptionIfError Then Return False
 
             If customErrorHandler IsNot Nothing Then
-                customErrorHandler.DynamicInvoke(ex, Me)
+                customErrorHandler(ex, Me)
                 ' Since we handled the exception with an injected custom error handler, we can now exit the function with the return of a False value.
                 Return False
             End If
@@ -1077,7 +1078,7 @@ beginAgain:
                 If Not throwExceptionIfError Then Return False
 
                 If customErrorHandler IsNot Nothing Then
-                    customErrorHandler.DynamicInvoke(ex, Me)
+                    customErrorHandler(ex, Me)
                     ' Since we handled the exception with an injected custom error handler, we can now exit the function with the return of a False value.
                     Return False
                 End If
@@ -1156,7 +1157,7 @@ beginAgain:
             If Not throwExceptionIfError Then Return False
 
             If customErrorHandler IsNot Nothing Then
-                customErrorHandler.DynamicInvoke(ex, Me)
+                customErrorHandler(ex, Me)
                 ' Since we handled the exception with an injected custom error handler, we can now exit the function with the return of a False value.
                 Return False
             End If
@@ -1232,7 +1233,7 @@ beginAgain:
             If Not throwExceptionIfError Then Return False
 
             If customErrorHandler IsNot Nothing Then
-                customErrorHandler.DynamicInvoke(ex, Me)
+                customErrorHandler(ex, Me)
                 ' Since we handled the exception with an injected custom error handler, we can now exit the function with the return of a False value.
                 Return False
             End If
@@ -1357,7 +1358,7 @@ beginAgain:
             If Not throwExceptionIfError Then Return False
 
             If customErrorHandler IsNot Nothing Then
-                customErrorHandler.DynamicInvoke(ex, Me)
+                customErrorHandler(ex, Me)
                 ' Since we handled the exception with an injected custom error handler, we can now exit the function with the return of a False value.
                 Return False
             End If
