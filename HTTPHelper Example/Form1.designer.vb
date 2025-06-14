@@ -25,7 +25,6 @@ Partial Class Form1
         Me.btnGetWebPageData = New System.Windows.Forms.Button()
         Me.postDataExample = New System.Windows.Forms.Button()
         Me.WebView21 = New Microsoft.Web.WebView2.WinForms.WebView2()
-        CType(Me.WebView21, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.ProgressBar1 = New System.Windows.Forms.ProgressBar()
         Me.btnDownloadFile = New System.Windows.Forms.Button()
@@ -38,6 +37,7 @@ Partial Class Form1
         Me.btnDownloadFile2 = New System.Windows.Forms.Button()
         Me.TxtURL = New System.Windows.Forms.TextBox()
         Me.Label3 = New System.Windows.Forms.Label()
+        CType(Me.WebView21, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'btnGetWebPageData
@@ -66,9 +66,9 @@ Partial Class Form1
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.WebView21.CreationProperties = Nothing
         Me.WebView21.DefaultBackgroundColor = System.Drawing.Color.White
-        Me.WebView21.Location = New System.Drawing.Point(12, 122)
+        Me.WebView21.Location = New System.Drawing.Point(15, 122)
         Me.WebView21.Name = "WebView21"
-        Me.WebView21.Size = New System.Drawing.Size(804, 374)
+        Me.WebView21.Size = New System.Drawing.Size(801, 374)
         Me.WebView21.TabIndex = 14
         Me.WebView21.ZoomFactor = 1.0R
         '
@@ -179,6 +179,7 @@ Partial Class Form1
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(828, 700)
+        Me.Controls.Add(Me.WebView21)
         Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.TxtURL)
         Me.Controls.Add(Me.btnDownloadFile2)
@@ -190,7 +191,6 @@ Partial Class Form1
         Me.Controls.Add(Me.btnDownloadFile)
         Me.Controls.Add(Me.ProgressBar1)
         Me.Controls.Add(Me.TextBox1)
-        Me.Controls.Add(Me.WebView21)
         Me.Controls.Add(Me.postDataExample)
         Me.Controls.Add(Me.btnGetWebPageData)
         Me.Name = "Form1"
@@ -203,7 +203,6 @@ Partial Class Form1
 
     Friend WithEvents btnGetWebPageData As Button
     Friend WithEvents postDataExample As Button
-    Friend WithEvents WebView21 As Microsoft.Web.WebView2.WinForms.WebView2
     Friend WithEvents TextBox1 As TextBox
     Friend WithEvents ProgressBar1 As ProgressBar
     Friend WithEvents btnDownloadFile As Button
@@ -216,4 +215,6 @@ Partial Class Form1
     Friend WithEvents btnDownloadFile2 As Button
     Friend WithEvents TxtURL As TextBox
     Friend WithEvents Label3 As Label
+    Friend WithEvents BackgroundWorker1 As System.ComponentModel.BackgroundWorker
+    Friend WithEvents WebView21 As Microsoft.Web.WebView2.WinForms.WebView2
 End Class

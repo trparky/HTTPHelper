@@ -1,4 +1,5 @@
 ﻿Imports System.Security.Cryptography.X509Certificates
+Imports HTTPHelper
 
 Public Class Form1
     Private Const urlToDownload As String = "http://releases.ubuntu.com/16.04.2/ubuntu-16.04.2-desktop-amd64.iso"
@@ -89,18 +90,18 @@ Public Class Form1
         Dim oldFileSize As ULong = 0
 
         ' Now we set up our download status updating Lambda function that's passed to the Class instance to execute within the memory space of the Class.
-        httpHelper.SetDownloadStatusUpdateRoutine = Sub(downloadStatusDetails As HTTPHelper.DownloadStatusDetails)
-                                                        If httpHelper.EnableMultiThreadedDownloadStatusUpdates Then
-                                                            Label1.Invoke(Sub() Label1.Text = String.Format("Downloaded {0} of {1} ({2}/s)", httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.LocalFileSize), httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.RemoteFileSize), httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.LocalFileSize - oldFileSize)))
+        httpHelper.SetDownloadStatusUpdateRoutine = New DownloadStatusUpdaterDelegate(Sub(downloadStatusDetails As DownloadStatusDetails)
+                                                                                          If httpHelper.EnableMultiThreadedDownloadStatusUpdates Then
+                                                                                              Label1.Invoke(Sub() Label1.Text = String.Format("Downloaded {0} of {1} ({2}/s)", httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.LocalFileSize), httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.RemoteFileSize), httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.LocalFileSize - oldFileSize)))
 
-                                                            oldFileSize = downloadStatusDetails.LocalFileSize
-                                                        Else
-                                                            Label1.Invoke(Sub() Label1.Text = String.Format("Downloaded {0} of {1}", httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.LocalFileSize), httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.RemoteFileSize)))
-                                                        End If
+                                                                                              oldFileSize = downloadStatusDetails.LocalFileSize
+                                                                                          Else
+                                                                                              Label1.Invoke(Sub() Label1.Text = String.Format("Downloaded {0} of {1}", httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.LocalFileSize), httpHelper.FileSizeToHumanReadableFormat(downloadStatusDetails.RemoteFileSize)))
+                                                                                          End If
 
-                                                        Label2.Invoke(Sub() Label2.Text = $"{downloadStatusDetails.PercentageDownloaded}%")
-                                                        ProgressBar1.Invoke(Sub() ProgressBar1.Value = downloadStatusDetails.PercentageDownloaded)
-                                                    End Sub
+                                                                                          Label2.Invoke(Sub() Label2.Text = $"{downloadStatusDetails.PercentageDownloaded}%")
+                                                                                          ProgressBar1.Invoke(Sub() ProgressBar1.Value = downloadStatusDetails.PercentageDownloaded)
+                                                                                      End Sub)
 
         ' Now we need to create our download thread.
         downloadThread = New Threading.Thread(Sub()
