@@ -1,6 +1,5 @@
 ﻿Imports System.IO
 Imports System.Security.Cryptography
-Imports System.Runtime.CompilerServices
 
 Public Class FormFile
 
