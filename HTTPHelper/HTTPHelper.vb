@@ -1524,7 +1524,7 @@ beginAgain:
         ElseIf size > (2 ^ 40) And size <= (2 ^ 50) Then
             result = $"{Math.Round(size / (2 ^ 40), shortRoundNumber)} TBs"
         ElseIf size > (2 ^ 50) And size <= (2 ^ 60) Then
-            result = $"{Math.Round(size / (2 ^ 50), shortRoundNumber)} PBs"
+            result = $"{Math.Round(size / (2 ^ 60), shortRoundNumber)} PBs"
         Else
             result = "(None)"
         End If
